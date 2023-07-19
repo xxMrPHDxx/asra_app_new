@@ -24,7 +24,11 @@ class _SplashPageState extends State<SplashPage> {
       (t) {
         setState(() => _turns += 0.01);
         if (_turns < 1) return;
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const OnBoardPage()));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const OnBoardPage(),
+          ),
+        );
         t.cancel();
       },
     );
@@ -43,11 +47,12 @@ class _SplashPageState extends State<SplashPage> {
       child: Column(
         children: [
           Image.asset(
-            'assets/imgs/icon_white.png',
-            width: MediaQuery.of(context).size.width,
+            'assets/logo-sm.png',
+            width: 120, //MediaQuery.of(context).size.width,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.marginSize * 2),
+            padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.marginSize * 2),
             child: Text(
               S.of(context).perfectTaxiBooking,
               style: GoogleFonts.roboto(
@@ -59,7 +64,8 @@ class _SplashPageState extends State<SplashPage> {
           ),
           const SizedBox(height: Dimensions.heightSize * 4),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.marginSize * 4),
+            padding: const EdgeInsets.symmetric(
+                horizontal: Dimensions.marginSize * 4),
             width: MediaQuery.of(context).size.width,
             height: 8.0,
             decoration: BoxDecoration(
