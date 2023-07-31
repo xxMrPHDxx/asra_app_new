@@ -75,9 +75,6 @@ class _VehicleInfoState extends State<_VehicleInfo> {
   @override
   Widget build(BuildContext context) {
     final vehicle = widget.owner.vehicle;
-    if (vehicle.classId != null && _models.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
     return Stack(
       children: [
         Card(
@@ -112,28 +109,36 @@ class _VehicleInfoState extends State<_VehicleInfo> {
                 ),
                 if (vehicle.classId != null) const SizedBox(height: 10),
                 if (vehicle.classId != null)
-                  FormGroup(
-                    label: 'Vehicle Model',
-                    child: CustomDropdownButton<int>(
-                      enabled: widget.enabled,
-                      items: _models
-                          .map(
-                            (t) => DropdownMenuItem<int>(
-                              value: t.id,
-                              child: Text(t.name),
-                            ),
-                          )
-                          .toList(),
-                      value: _models.isEmpty ? null : vehicle.modelId,
-                      onChanged: _models.isEmpty
-                          ? null
-                          : (id) {
-                              setState(() {
-                                vehicle.modelId = id;
-                              });
-                            },
-                    ),
-                  ),
+                  vehicle.classId != null && _models.isEmpty
+                      ? Text(
+                          'No models available for this type',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge!
+                              .copyWith(color: Colors.red),
+                        )
+                      : FormGroup(
+                          label: 'Vehicle Model',
+                          child: CustomDropdownButton<int>(
+                            enabled: widget.enabled,
+                            items: _models
+                                .map(
+                                  (t) => DropdownMenuItem<int>(
+                                    value: t.id,
+                                    child: Text(t.name),
+                                  ),
+                                )
+                                .toList(),
+                            value: _models.isEmpty ? null : vehicle.modelId,
+                            onChanged: _models.isEmpty
+                                ? null
+                                : (id) {
+                                    setState(() {
+                                      vehicle.modelId = id;
+                                    });
+                                  },
+                          ),
+                        ),
                 const SizedBox(height: 10),
                 FormGroup(
                   label: 'Plate Number',
@@ -291,7 +296,8 @@ class _VehicleInfoState extends State<_VehicleInfo> {
               child: ElevatedButton(
                 onPressed: widget.onClose,
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.red.shade400),
+                  backgroundColor:
+                      MaterialStateProperty.all(Colors.red.shade400),
                   padding: MaterialStateProperty.all(EdgeInsets.zero),
                 ),
                 child: const Icon(Icons.close, size: 12),
@@ -342,7 +348,8 @@ class _VehiclesInfoRegistrationState extends State<VehiclesInfoRegistration> {
 
   @override
   Widget build(BuildContext context) {
-    final notAddable = widget.limit != null && widget.owners.length >= widget.limit!;
+    final notAddable =
+        widget.limit != null && widget.owners.length >= widget.limit!;
     return SingleChildScrollView(
       child: _loading
           ? const Center(child: CircularProgressIndicator())

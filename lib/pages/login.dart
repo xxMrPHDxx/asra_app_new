@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    emailController.text = 'badru@bliblah.com';
+    emailController.text = 'arif.ghaffar@gmail.com';
     passwordController.text = '1234';
   }
 
@@ -82,7 +82,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: Dimensions.heightSize),
-                  CustomTextField(controller: emailController, hintText: S.of(context).email),
+                  CustomTextField(
+                      controller: emailController,
+                      hintText: S.of(context).email),
                   const SizedBox(height: Dimensions.heightSize * 2),
                   Text(
                     S.of(context).password,
@@ -133,12 +135,16 @@ class _LoginPageState extends State<LoginPage> {
               width: MediaQuery.of(context).size.width,
               decoration: const BoxDecoration(
                 color: CustomColor.primaryColor,
-                borderRadius: BorderRadius.all(Radius.circular(Dimensions.radius * 0.5)),
+                borderRadius:
+                    BorderRadius.all(Radius.circular(Dimensions.radius * 0.5)),
               ),
               child: Center(
                 child: Text(
                   S.of(context).signIn.toUpperCase(),
-                  style: GoogleFonts.roboto(color: Colors.white, fontSize: Dimensions.largeTextSize, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.roboto(
+                      color: Colors.white,
+                      fontSize: Dimensions.largeTextSize,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -155,10 +161,14 @@ class _LoginPageState extends State<LoginPage> {
               GestureDetector(
                 child: Text(
                   S.of(context).signUp,
-                  style: TextStyle(fontSize: Dimensions.defaultTextSize, color: CustomColor.blueColor, decoration: TextDecoration.underline),
+                  style: TextStyle(
+                      fontSize: Dimensions.defaultTextSize,
+                      color: CustomColor.blueColor,
+                      decoration: TextDecoration.underline),
                 ),
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegistrationPage()));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const RegistrationPage()));
                 },
               ),
             ],

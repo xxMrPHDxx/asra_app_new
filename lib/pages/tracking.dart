@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:asra_app_new/error.dart';
 import 'package:asra_app_new/models/job.dart';
+import 'package:asra_app_new/utils/polyline.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -32,15 +33,36 @@ class _TrackingPageState extends State<TrackingPage> {
   final List<BitmapDescriptor> _markerIcons = [];
   late double lastX, lastY;
 
+  final List<LatLng> _waypoints = [];
+  late final Timer _routeTimer;
+  int _activeRoute = 0;
+  Polyline? _route;
+
   @override
   void initState() {
     super.initState();
-    _getLocation();
   }
 
-  void _getLocation() async {
+  Future<void> _getLocationAndRoutes() async {
+    final start = LatLng(widget.job.fromLat, widget.job.fromLon);
+    final finish = LatLng(widget.job.toLat, widget.job.toLon);
+    _waypoints.add(start);
+    _waypoints
+        .addAll(widget.subJobs.map((job) => LatLng(job.toLat, job.toLon)));
+    _waypoints.add(finish);
+    final coords = await getRoutesBetweenPoints(
+      start,
+      finish,
+    );
+    _route = Polyline(
+      width: 10,
+      polylineId: const PolylineId('main'),
+      color: Colors.redAccent.shade200,
+      points: coords,
+    );
+
     _markerIcons.add(await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(),
+      const ImageConfiguration(size: Size.fromWidth(12)),
       'assets/markers/start.png',
     ));
     for (int i = 1; i <= 6; i++) {
@@ -85,7 +107,8 @@ class _TrackingPageState extends State<TrackingPage> {
       });
       _subscription = _location.onLocationChanged.listen((loc) {
         final pos = LatLng(loc.latitude!, loc.longitude!);
-        double angle = atan2(pos.latitude - lastY, pos.longitude - lastY) * 180 / pi;
+        double angle =
+            atan2(pos.latitude - lastY, pos.longitude - lastY) * 180 / pi;
         lastX = pos.latitude;
         lastY = pos.longitude;
         // _controller.moveCamera(CameraUpdate.newLatLng(pos));
@@ -99,6 +122,33 @@ class _TrackingPageState extends State<TrackingPage> {
           );
         });
       });
+
+      _routeTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+        if (widget.job.dateFrom.isBefore(DateTime.now())) return;
+        final pos = _waypoints[_activeRoute];
+        final dLat = _position.latitude - pos.latitude;
+        final dLon = _position.longitude - pos.longitude;
+        final dist = sqrt(dLat * dLat + dLon * dLon);
+        if (_activeRoute < _waypoints.length - 1 && dist < 0.00001) {
+          setState(() => _activeRoute++);
+        }
+
+        // Calculating routes
+        final coords = await getRoutesBetweenPoints(
+          _position,
+          pos,
+          _waypoints.sublist(1, _waypoints.length - 1),
+        );
+        setState(() {
+          Fluttertoast.showToast(msg: 'Updating route...');
+          _route = Polyline(
+            width: 10,
+            polylineId: const PolylineId('main'),
+            color: Colors.green,
+            points: coords,
+          );
+        });
+      });
     } catch (e) {
       Fluttertoast.showToast(msg: e is Error ? e.message : e.toString());
     }
@@ -109,50 +159,66 @@ class _TrackingPageState extends State<TrackingPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
+    // return Scaffold(
+    //   body: SingleChildScrollView(
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.stretch,
+    //       children:
+    //           _routes.first.points.map((e) => Text(e.toString())).toList(),
+    //     ),
+    //   ),
+    // );
     return Scaffold(
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(target: _position, zoom: 17),
-        // onMapCreated: (controller) {
-        //   _controller = controller;
-        // },
-        markers: {
-          _marker,
-          Marker(
-            markerId: const MarkerId('start'),
-            position: LatLng(
-              widget.job.fromLat,
-              widget.job.fromLon,
-            ),
-            icon: _markerIcons.first,
-          ), // Start
-          Marker(
-            markerId: const MarkerId('end'),
-            position: LatLng(
-              widget.job.toLat,
-              widget.job.toLon,
-            ),
-            icon: _markerIcons.last,
-          ), // End
-          ...List.generate(
-            widget.subJobs.length,
-            (i) {
-              final job = widget.subJobs[i];
-              return Marker(
-                markerId: MarkerId('sub#${job.itemId}'),
-                position: LatLng(
-                  job.toLat,
-                  job.toLon,
-                ),
-                icon: _markerIcons[i + 1],
-              );
-            },
-          )
+        initialCameraPosition: CameraPosition(
+          target: LatLng(
+            widget.job.fromLat,
+            widget.job.fromLon,
+          ),
+          zoom: 17,
+        ),
+        onMapCreated: (controller) async {
+          // _controller = controller;
+          await _getLocationAndRoutes();
         },
+        polylines: {
+          if (_route != null) _route!,
+        },
+        markers: _loading
+            ? const {}
+            : {
+                _marker,
+                Marker(
+                  markerId: const MarkerId('start'),
+                  position: LatLng(
+                    widget.job.fromLat,
+                    widget.job.fromLon,
+                  ),
+                  icon: _markerIcons.first,
+                ), // Start
+                Marker(
+                  markerId: const MarkerId('end'),
+                  position: LatLng(
+                    widget.job.toLat,
+                    widget.job.toLon,
+                  ),
+                  icon: _markerIcons.last,
+                ), // End
+                ...List.generate(
+                  widget.subJobs.length,
+                  (i) {
+                    final job = widget.subJobs[i];
+                    return Marker(
+                      markerId: MarkerId('sub#${job.itemId}'),
+                      position: LatLng(
+                        job.toLat,
+                        job.toLon,
+                      ),
+                      icon: _markerIcons[i + 1],
+                    );
+                  },
+                )
+              },
       ),
     );
   }
@@ -160,6 +226,7 @@ class _TrackingPageState extends State<TrackingPage> {
   @override
   void dispose() {
     _subscription.cancel();
+    _routeTimer.cancel();
     super.dispose();
   }
 }

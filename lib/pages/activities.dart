@@ -5,13 +5,15 @@ import 'package:asra_app_new/models/job.dart';
 import 'package:asra_app_new/widgets/activities_log.dart';
 import 'package:asra_app_new/pages/home.dart';
 import 'package:asra_app_new/widgets/add_activity.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class ActivitiesPage extends StatefulWidget {
   final Job job;
   final LoginData login;
   final String authToken;
 
-  const ActivitiesPage(this.job, this.login, this.authToken, {Key? key}) : super(key: key);
+  const ActivitiesPage(this.job, this.login, this.authToken, {Key? key})
+      : super(key: key);
 
   @override
   State<ActivitiesPage> createState() => _ActivitiesPageState();
@@ -34,9 +36,13 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   }
 
   Future<void> _loadActivities() async {
+    await initializeDateFormatting();
     final job = widget.job;
-    Fluttertoast.showToast(msg: 'Getting orders:  /orders/${job.orderId}/${job.itemId}/activities');
-    final res = await Api.get('/orders/${job.orderId}/${job.itemId}/activities', {
+    Fluttertoast.showToast(
+        msg:
+            'Getting orders:  /orders/${job.orderId}/${job.itemId}/activities');
+    final res =
+        await Api.get('/orders/${job.orderId}/${job.itemId}/activities', {
       'Authorization': 'Bearer ${widget.authToken}',
     });
     if (!res['success']) {
@@ -53,7 +59,10 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
             activity['status'],
             activity['actor'],
             approved: activity['approved'],
-            driverCost: activity['driver_cost'] == null ? null : double.parse(activity['driver_cost']),
+            driverCost: activity['driver_cost'] == null
+                ? null
+                : double.parse(activity['driver_cost']),
+            actorId: activity['actor_id'],
           ));
         }
       });
@@ -99,7 +108,10 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                             Text(
                               job.customerName,
                               textAlign: TextAlign.start,
-                              style: Theme.of(context).textTheme.headline5!.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline5!
+                                  .copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                             ),
@@ -109,7 +121,9 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                               style: Theme.of(context).textTheme.headline5,
                             ),
                             Text(
-                              job.placeTo == null ? job.placeFrom : '${job.placeFrom} - ${job.placeTo}',
+                              job.placeTo == null
+                                  ? job.placeFrom
+                                  : '${job.placeFrom} - ${job.placeTo}',
                               textAlign: TextAlign.start,
                               style: Theme.of(context).textTheme.headline5,
                             ),

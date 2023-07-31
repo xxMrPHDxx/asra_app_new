@@ -13,7 +13,7 @@ import 'package:collection/collection.dart';
 
 const serviceIcons = {
   1: FontAwesomeIcons.plane,
-  3: FontAwesomeIcons.calendarDays,
+  3: FontAwesomeIcons.calendar,
   8: FontAwesomeIcons.city,
   4: FontAwesomeIcons.mapLocation,
 };
@@ -121,7 +121,8 @@ class _OffersPageState extends State<OffersPage> {
         booking.orderStatus = 'A';
       });
     } catch (e) {
-      Fluttertoast.showToast(msg: 'Error: ${e is Error ? e.message : e.toString()}');
+      Fluttertoast.showToast(
+          msg: 'Error: ${e is Error ? e.message : e.toString()}');
     }
     setState(() => _busy = false);
   }
@@ -145,7 +146,8 @@ class _OffersPageState extends State<OffersPage> {
         booking.orderStatus = 'P';
       });
     } catch (e) {
-      Fluttertoast.showToast(msg: 'Error: ${e is Error ? e.message : e.toString()}');
+      Fluttertoast.showToast(
+          msg: 'Error: ${e is Error ? e.message : e.toString()}');
     }
     setState(() {
       _busy = false;
@@ -163,24 +165,36 @@ class _OffersPageState extends State<OffersPage> {
         ),
       );
     }
-    final parentJobs = _bookings.values.where((job) => job.typeId != 3 && (job.subJob == null || job.subJob == 0)).toList(growable: false);
+    final parentJobs = _bookings.values
+        .where(
+            (job) => job.typeId != 3 && (job.subJob == null || job.subJob == 0))
+        .toList(growable: false);
     final keys = _dailyUse.keys.toList();
     return Padding(
       padding: const EdgeInsets.all(10),
       child: ListView.builder(
         itemCount: parentJobs.length + _dailyUse.length,
         itemBuilder: (ctx, idx) {
-          final parentJob = idx >= _dailyUse.length ? parentJobs[idx - _dailyUse.length] : _dailyUse[keys[idx]]!.first;
+          final parentJob = idx >= _dailyUse.length
+              ? parentJobs[idx - _dailyUse.length]
+              : _dailyUse[keys[idx]]!.first;
           List<Job>? subjobs;
           List<Job>? jobs;
           final String path;
           final double totalprice;
           if (parentJob.typeId == 3) {
-            totalprice = _dailyUse[parentJob.quotationId]!.fold(0, (a, b) => a + b.price);
+            totalprice = _dailyUse[parentJob.quotationId]!
+                .fold(0, (a, b) => a + b.price);
             path = 'Not implemented!';
           } else {
-            subjobs = _bookings.values.where((job) => parentJob.typeId == 3 ? (job != parentJob && job.quotationId == parentJob.quotationId) : job.subJob == parentJob.itemId).toList(growable: false);
-            totalprice = parentJob.price + subjobs.fold<double>(0, (s, job) => s + job.price);
+            subjobs = _bookings.values
+                .where((job) => parentJob.typeId == 3
+                    ? (job != parentJob &&
+                        job.quotationId == parentJob.quotationId)
+                    : job.subJob == parentJob.itemId)
+                .toList(growable: false);
+            totalprice = parentJob.price +
+                subjobs.fold<double>(0, (s, job) => s + job.price);
             jobs = [
               // parentJob,
               ...subjobs,
@@ -205,11 +219,11 @@ class _OffersPageState extends State<OffersPage> {
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: CustomColor.primaryColor,
+                color: CustomColor.secondaryColor,
                 border: Border.all(style: BorderStyle.none),
                 boxShadow: [
                   BoxShadow(
-                    color: CustomColor.primaryColor.withOpacity(0.7),
+                    color: CustomColor.secondaryColor.withOpacity(0.7),
                     blurRadius: 2,
                     offset: const Offset(3, 3),
                   ),
@@ -237,7 +251,7 @@ class _OffersPageState extends State<OffersPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (![3, 5, 6, 7].contains(parentJob.typeId))
+                            if (![5, 6, 7].contains(parentJob.typeId))
                               // SvgPicture.asset(
                               //     height: 30,
                               //     'assets/svg/cheuffeur.svg',
@@ -280,12 +294,14 @@ class _OffersPageState extends State<OffersPage> {
                           if (parentJob.typeId != 3)
                             Text(
                               path,
-                              style: CustomStyle.textStyle.copyWith(color: CustomColor.accentColor),
+                              style: CustomStyle.textStyle
+                                  .copyWith(color: CustomColor.accentColor),
                             ),
                           const SizedBox(height: 5),
                           Text(
                             df.format(parentJob.dateFrom),
-                            style: CustomStyle.textStyle.copyWith(color: CustomColor.accentColor),
+                            style: CustomStyle.textStyle
+                                .copyWith(color: CustomColor.accentColor),
                           ),
                         ],
                       )
@@ -311,21 +327,36 @@ class _OffersPageState extends State<OffersPage> {
                               'Customer: ${parentJob.customerName}',
                               style: CustomStyle.textStyle,
                             ),
-                            if (subjobs != null && subjobs.isNotEmpty && jobs != null) const SizedBox(height: 5),
-                            if (subjobs != null && subjobs.isNotEmpty && jobs != null)
+                            if (subjobs != null &&
+                                subjobs.isNotEmpty &&
+                                jobs != null)
+                              const SizedBox(height: 5),
+                            if (subjobs != null &&
+                                subjobs.isNotEmpty &&
+                                jobs != null)
                               RichText(
                                 text: TextSpan(
-                                  children: List.generate(paths.length * 2 - 1, (i) {
+                                  children:
+                                      List.generate(paths.length * 2 - 1, (i) {
                                     return TextSpan(
-                                      text: i % 2 == 0 ? paths[i ~/ 2] : ' \u27a1 ',
+                                      text: i % 2 == 0
+                                          ? paths[i ~/ 2]
+                                          : ' \u27a1 ',
                                       style: CustomStyle.textStyle.copyWith(
-                                        color: i % 2 == 1 || i % 2 == 0 && i ~/ 2 >= jobs!.length || (jobs![i ~/ 2].typeId > 7 || jobs[i ~/ 2].typeId < 5) ? CustomColor.primaryColor : CustomColor.greyColor,
+                                        color: i % 2 == 1 ||
+                                                i % 2 == 0 &&
+                                                    i ~/ 2 >= jobs!.length ||
+                                                (jobs![i ~/ 2].typeId > 7 ||
+                                                    jobs[i ~/ 2].typeId < 5)
+                                            ? CustomColor.primaryColor
+                                            : CustomColor.greyColor,
                                       ),
                                     );
                                   }).toList(),
                                 ),
                               ),
-                            if (parentJob.typeId == 3) const SizedBox(height: 5),
+                            if (parentJob.typeId == 3)
+                              const SizedBox(height: 5),
                             if (parentJob.typeId == 3)
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,19 +372,24 @@ class _OffersPageState extends State<OffersPage> {
                                     )
                                     .toList(growable: false),
                               ),
-                            if (parentJob.typeId == 1 && parentJob.flightNumber != null) const SizedBox(height: 5),
-                            if (parentJob.typeId == 1 && parentJob.flightNumber != null)
+                            if (parentJob.typeId == 1 &&
+                                parentJob.flightNumber != null)
+                              const SizedBox(height: 5),
+                            if (parentJob.typeId == 1 &&
+                                parentJob.flightNumber != null)
                               Text(
                                 'Flight number: ${parentJob.flightNumber}',
                                 style: CustomStyle.textStyle,
                               ),
-                            if (parentJob.typeId == 1) const SizedBox(height: 5),
+                            if (parentJob.typeId == 1)
+                              const SizedBox(height: 5),
                             if (parentJob.typeId == 1)
                               Text(
                                 'ETD: ${parentJob.etd == null ? '' : df.format(parentJob.etd!)}',
                                 style: CustomStyle.textStyle,
                               ),
-                            if (parentJob.typeId == 1) const SizedBox(height: 5),
+                            if (parentJob.typeId == 1)
+                              const SizedBox(height: 5),
                             if (parentJob.typeId == 1)
                               Text(
                                 'ETA: ${parentJob.eta == null ? '' : df.format(parentJob.eta!)}',
@@ -369,8 +405,13 @@ class _OffersPageState extends State<OffersPage> {
                               children: [
                                 parentJob.orderStatus.toLowerCase() == 'p'
                                     ? TextButton(
-                                        style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                                              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                                        style: Theme.of(context)
+                                            .elevatedButtonTheme
+                                            .style!
+                                            .copyWith(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.transparent),
                                             ),
                                         onPressed: _busy
                                             ? null
@@ -384,8 +425,13 @@ class _OffersPageState extends State<OffersPage> {
                                         ),
                                       )
                                     : TextButton(
-                                        style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                                              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                                        style: Theme.of(context)
+                                            .elevatedButtonTheme
+                                            .style!
+                                            .copyWith(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.transparent),
                                             ),
                                         onPressed: _busy
                                             ? null

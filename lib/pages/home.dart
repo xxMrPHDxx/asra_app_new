@@ -42,7 +42,8 @@ class LoginData {
 }
 
 LoginData getLoginData(final String token) {
-  final String data = const Utf8Decoder().convert(base64Decode(token.split('.')[1]));
+  final String data =
+      const Utf8Decoder().convert(base64Decode(token.split('.')[1]));
   final Map<String, dynamic> payload = jsonDecode(data);
   Fluttertoast.showToast(msg: "Data: $data");
   return LoginData(
@@ -65,7 +66,9 @@ class _HomePageState extends State<HomePage> {
   void _loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('AUTH_TOKEN')) {
-      if (mounted) Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const LoginPage()));
+      if (mounted)
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginPage()));
       return;
     }
     _token = prefs.getString('AUTH_TOKEN')!;
@@ -205,7 +208,7 @@ class _HomePageState extends State<HomePage> {
             image: DecorationImage(
               fit: BoxFit.cover,
               colorFilter: ColorFilter.mode(
-                Colors.black.withOpacity(0.7),
+                Colors.black.withOpacity(0.3),
                 BlendMode.dstATop,
               ),
               image: const AssetImage('assets/background.jpg'),
@@ -219,10 +222,15 @@ class _HomePageState extends State<HomePage> {
               foregroundColor: CustomColor.accentColor,
               automaticallyImplyLeading: false,
             ),
-            body: _loading ? const Center(child: CircularProgressIndicator()) : _renderPage(),
+            body: _loading
+                ? const Center(child: CircularProgressIndicator())
+                : _renderPage(),
             bottomNavigationBar: CurvedNavigationBar(
               index: _currentPage,
-              items: HomepageMenuState.values.map((state) => Icon(state.icon, color: CustomColor.accentColor)).toList(),
+              items: HomepageMenuState.values
+                  .map((state) =>
+                      Icon(state.icon, color: CustomColor.accentColor))
+                  .toList(),
               backgroundColor: Colors.transparent,
               color: CustomColor.primaryColor,
               onTap: (idx) {
@@ -232,7 +240,8 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             floatingActionButton: _loading ? null : fb,
-            floatingActionButtonLocation: fb is ExpandableFab ? ExpandableFab.location : null,
+            floatingActionButtonLocation:
+                fb is ExpandableFab ? ExpandableFab.location : null,
           ),
         ),
         Positioned(

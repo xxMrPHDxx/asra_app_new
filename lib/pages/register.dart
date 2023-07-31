@@ -10,10 +10,7 @@ import 'package:asra_app_new/pages/registration/driver_type.dart';
 import 'package:asra_app_new/pages/registration/host_info.dart';
 import 'package:asra_app_new/pages/registration/vehicles_info.dart';
 import 'package:asra_app_new/utils/colors.dart';
-import 'package:asra_app_new/utils/custom_style.dart';
 import 'package:asra_app_new/utils/dimensions.dart';
-import 'package:asra_app_new/widgets/custom_input.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:asra_app_new/api.dart';
@@ -324,7 +321,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       ? null
                       : () {
                           setState(() {
-                            _page -= _registerType == _RegisterType.hosting ? 1 : 2;
+                            _page -=
+                                _registerType == _RegisterType.hosting ? 1 : 2;
                           });
                         },
                   child: const Text('Back'),

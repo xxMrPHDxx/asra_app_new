@@ -11,6 +11,7 @@ class Activity {
   final String actor;
   final String? approved;
   final double? driverCost;
+  final String? actorId;
   Activity(
     this.type,
     this.start,
@@ -20,6 +21,7 @@ class Activity {
     this.actor, {
     this.approved,
     this.driverCost,
+    this.actorId,
   });
 }
 
@@ -47,7 +49,7 @@ class ActivitiesLog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final df = DateFormat('MMM d, y\nh:mm a');
+    final df = DateFormat('MMM d, y\nh:mma');
     return Timeline.tileBuilder(
       builder: TimelineTileBuilder.fromStyle(
         contentsAlign: ContentsAlign.reverse,
@@ -55,7 +57,7 @@ class ActivitiesLog extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.all(10),
             child: Text(
-              df.format(_activities[idx].start),
+              df.format(_activities[idx].start.toLocal()),
               style: const TextStyle(
                 fontSize: 10,
               ),
@@ -77,25 +79,43 @@ class ActivitiesLog extends StatelessWidget {
                     activity.type,
                     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           fontWeight: FontWeight.bold,
-                          color: activity.actor == 'passenger' ? Colors.blue.shade800 : Colors.black,
+                          color: activity.actor == 'passenger'
+                              ? Colors.blue.shade800
+                              : Colors.black,
                         ),
                   ),
                   if (activity.note.isNotEmpty)
                     Text(
                       activity.note,
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color: activity.actor == 'passenger' ? Colors.blue.shade800 : Colors.black,
+                            color: activity.actor == 'passenger'
+                                ? Colors.blue.shade800
+                                : Colors.black,
                           ),
                     ),
                   Text(
                     'Status: ${activity.status}',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: activity.actor == 'passenger' ? Colors.blue.shade800 : Colors.black),
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: activity.actor == 'passenger'
+                            ? Colors.blue.shade800
+                            : Colors.black),
                   ),
+                  if (activity.actor != 'driver' && activity.actorId != null)
+                    Text(
+                      'From: ${activity.actorId}',
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: activity.actor == 'passenger'
+                                ? Colors.blue.shade800
+                                : _getColor(activity.approved),
+                          ),
+                    ),
                   if (activity.approved != null)
                     Text(
                       '(${activity.approved}${_getDriverCost(activity)})',
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color: activity.actor == 'passenger' ? Colors.blue.shade800 : _getColor(activity.approved),
+                            color: activity.actor == 'passenger'
+                                ? Colors.blue.shade800
+                                : _getColor(activity.approved),
                           ),
                     ),
                 ],
