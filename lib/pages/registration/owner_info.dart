@@ -107,28 +107,20 @@ class OwnerInfoRegistration extends Dialog {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  FormGroup(
-                    label: 'Identity Card Document',
-                    child: CustomFileFormField(
-                      title: 'Identity Card',
-                      value: owner.icPath,
-                      allowedExtensions: const ['pdf'],
-                      onChange: (icPath) => setState(() {
-                        owner.icPath = icPath;
-                      }),
-                    ),
+                  CustomFileUploadField(
+                    title: 'Identity Card',
+                    value: owner.icPath,
+                    onChange: (path) => setState(() {
+                      owner.icPath = path;
+                    }),
                   ),
                   const SizedBox(height: 10),
-                  FormGroup(
-                    label: 'Bank Statement Document',
-                    child: CustomFileFormField(
-                      title: 'Bank Statement',
-                      value: owner.bankStatementPath,
-                      allowedExtensions: const ['pdf'],
-                      onChange: (bankStatementPath) => setState(() {
-                        owner.bankStatementPath = bankStatementPath;
-                      }),
-                    ),
+                  CustomFileUploadField(
+                    title: 'Bank Statement',
+                    value: owner.bankStatementPath,
+                    onChange: (path) => setState(() {
+                      owner.bankStatementPath = path;
+                    }),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(

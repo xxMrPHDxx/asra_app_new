@@ -38,7 +38,7 @@ class _TripsPageState extends State<TripsPage> {
   }
 
   void _getTrips() async {
-    final response = await Api.get('/jobs', {
+    final response = await Api.json.get('/jobs', {
       'Authorization': 'Bearer ${widget.authToken}',
     });
     if (!response['success']) {
@@ -92,11 +92,18 @@ class _TripsPageState extends State<TripsPage> {
         ),
       );
     }
-    final parentJobs = _jobs.where((job) => job.subJob == null || job.subJob == 0 || job.typeId == 3).toList(growable: false);
+    final parentJobs = _jobs
+        .where(
+            (job) => job.subJob == null || job.subJob == 0 || job.typeId == 3)
+        .toList(growable: false);
     return ListView.builder(
       itemBuilder: (ctx, idx) {
         final parentJob = parentJobs[idx];
-        final subjobs = _jobs.where((job) => parentJob.typeId == 3 ? (job != parentJob && job.quotationId == parentJob.quotationId) : job.subJob == parentJob.itemId).toList(growable: false);
+        final subjobs = _jobs
+            .where((job) => parentJob.typeId == 3
+                ? (job != parentJob && job.quotationId == parentJob.quotationId)
+                : job.subJob == parentJob.itemId)
+            .toList(growable: false);
         final childprice = subjobs.fold<double>(0, (s, job) => s + job.price);
         final price = (childprice + parentJob.price).toStringAsFixed(2);
         final path = [
@@ -132,7 +139,8 @@ class _TripsPageState extends State<TripsPage> {
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           const SizedBox(height: 10),
-                          ![3, 5, 6, 7].contains(parentJob.typeId) && parentJob.typeId != 1
+                          ![3, 5, 6, 7].contains(parentJob.typeId) &&
+                                  parentJob.typeId != 1
                               ? SvgPicture.asset(
                                   height: 30,
                                   'assets/svg/cheuffeur.svg',
@@ -171,7 +179,8 @@ class _TripsPageState extends State<TripsPage> {
                             path,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
-                          if (parentJob.flightNumber != null) const SizedBox(height: 5),
+                          if (parentJob.flightNumber != null)
+                            const SizedBox(height: 5),
                           if (parentJob.flightNumber != null)
                             Text(
                               'Flight number: ${parentJob.flightNumber}',
@@ -196,13 +205,18 @@ class _TripsPageState extends State<TripsPage> {
                           Row(
                             children: [
                               ElevatedButton(
-                                style: Theme.of(context).elevatedButtonTheme.style!.copyWith(
-                                      backgroundColor: MaterialStatePropertyAll(Colors.yellow.shade700),
+                                style: Theme.of(context)
+                                    .elevatedButtonTheme
+                                    .style!
+                                    .copyWith(
+                                      backgroundColor: MaterialStatePropertyAll(
+                                          Colors.yellow.shade700),
                                     ),
                                 onPressed: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (ctx) => UserAuth(parentJob.link),
+                                      builder: (ctx) =>
+                                          UserAuth(parentJob.link),
                                     ),
                                   );
                                 },
@@ -226,7 +240,8 @@ class _TripsPageState extends State<TripsPage> {
                                 dimension: 30,
                                 child: TextButton(
                                   onPressed: () {
-                                    Navigator.of(context).push(MaterialPageRoute(
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
                                       builder: (ctx) => TrackingPage(
                                         job: parentJob,
                                         subJobs: subjobs,

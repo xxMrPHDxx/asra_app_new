@@ -1,16 +1,24 @@
+import 'package:asra_app_new/api.dart';
+import 'package:asra_app_new/utils/viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart';
+import 'package:intl/intl.dart';
+
+import 'form_group.dart';
 
 class CustomFormField extends StatelessWidget {
   final bool enabled;
-  final Icon? prefixIcon;
-  final Icon? suffixIcon;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final String? hint;
   final int maxLines;
-  final String value;
+  final String? value;
   final String? obscureCharacter;
-  final void Function(String) onChange;
+  final bool? readOnly;
+  final void Function(String)? onChange;
   final void Function()? onIconClicked;
   const CustomFormField({
     this.enabled = true,
@@ -18,9 +26,10 @@ class CustomFormField extends StatelessWidget {
     this.suffixIcon,
     this.hint,
     this.maxLines = 1,
-    required this.value,
+    this.value,
     this.obscureCharacter,
-    required this.onChange,
+    this.readOnly,
+    this.onChange,
     this.onIconClicked,
     Key? key,
   }) : super(key: key);
@@ -50,6 +59,7 @@ class CustomFormField extends StatelessWidget {
               ),
         hintText: hint,
       ),
+      readOnly: readOnly ?? false,
       maxLines: maxLines,
       initialValue: value,
       onChanged: onChange,
@@ -160,6 +170,161 @@ class CustomDropdownButton<T> extends StatelessWidget {
                 },
         ),
       ),
+    );
+  }
+}
+
+enum FileUploadType {
+  pdf,
+  image,
+}
+
+class CustomFileUploadField extends StatefulWidget {
+  final bool enabled;
+  final String title;
+  final String? hintText;
+  final String? value;
+  final FileUploadType uploadType;
+  final void Function(String) onChange;
+  const CustomFileUploadField({
+    this.enabled = true,
+    required this.title,
+    this.hintText,
+    required this.value,
+    this.uploadType = FileUploadType.pdf,
+    required this.onChange,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _CustomFileUploadFieldState();
+}
+
+class _CustomFileUploadFieldState extends State<CustomFileUploadField> {
+  @override
+  Widget build(BuildContext context) {
+    bool uploaded = widget.value?.isNotEmpty ?? false;
+    return FormGroup(
+      label: '${widget.title} (${uploaded ? '\u2705' : '\u274C'})',
+      child: TextField(
+        readOnly: true,
+        decoration: InputDecoration(
+          border: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.black87,
+              width: 2,
+            ),
+          ),
+          constraints: const BoxConstraints.tightFor(height: 42),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+          hintText: widget.hintText ?? 'Select document',
+          prefixIcon: uploaded
+              ? TextButton(
+                  onPressed: () {
+                    if (widget.uploadType == FileUploadType.pdf) {
+                      showPdf(context, widget.value!);
+                    } else {
+                      showImage(context, widget.value!);
+                    }
+                  },
+                  child: const Text('View'),
+                )
+              : null,
+          suffixIcon: TextButton(
+            onPressed: !widget.enabled
+                ? null
+                : () async {
+                    try {
+                      final result = await FilePicker.platform.pickFiles(
+                        dialogTitle: widget.title,
+                        type: FileType.custom,
+                        allowedExtensions:
+                            widget.uploadType == FileUploadType.pdf
+                                ? ['pdf']
+                                : ['jpg', 'png'],
+                        allowMultiple: false,
+                      );
+                      if (result == null) return;
+                      String endpoint = widget.uploadType == FileUploadType.pdf
+                          ? 'pdf'
+                          : 'image';
+                      final response =
+                          await Api.multipart.post('/upload/$endpoint', {
+                        'input': await MultipartFile.fromPath(
+                          'input',
+                          result.files[0].path!,
+                        ),
+                      });
+                      if (!response['success']) {
+                        throw Exception(response['message']);
+                      }
+                      setState(() {
+                        widget.onChange(response['path']);
+                      });
+                    } catch (e) {
+                      Fluttertoast.showToast(
+                        msg: '$e',
+                      );
+                    }
+                  },
+            child: const Icon(FontAwesomeIcons.upload),
+          ),
+        ),
+        controller: TextEditingController(text: widget.value),
+      ),
+    );
+  }
+}
+
+class DatePickerField extends StatelessWidget {
+  final String? value;
+  final void Function(String)? onChanged;
+  const DatePickerField({
+    this.value,
+    this.onChanged,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black87,
+                  width: 2,
+                ),
+              ),
+              constraints: BoxConstraints.tightFor(height: 42),
+              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+            ),
+            enabled: false,
+            controller: TextEditingController(text: value),
+          ),
+        ),
+        SizedBox.square(
+          dimension: 48,
+          child: InkWell(
+            onTap: () async {
+              final result = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime.now(),
+                lastDate: DateTime.now().add(
+                  const Duration(days: 10 * 365),
+                ),
+              );
+              if (result == null) return;
+              final date = DateFormat('d MMM y').format(result);
+              if (onChanged != null) onChanged!(date);
+            },
+            child: const Icon(Icons.date_range),
+          ),
+        ),
+      ],
     );
   }
 }

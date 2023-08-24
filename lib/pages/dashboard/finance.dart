@@ -34,7 +34,7 @@ class FinancePageState extends State<FinancePage> {
   }
 
   void _getPayments() async {
-    final response = await Api.get('/driver/payments', {
+    final response = await Api.json.get('/driver/payments', {
       'Authorization': 'Bearer ${widget.authToken}',
     });
     if (!response['success']) {
@@ -83,7 +83,9 @@ class FinancePageState extends State<FinancePage> {
             style: Theme.of(context).textTheme.bodyText2,
           ),
           const Text(''),
-        ].map((e) => Padding(padding: const EdgeInsets.all(2), child: e)).toList(),
+        ]
+            .map((e) => Padding(padding: const EdgeInsets.all(2), child: e))
+            .toList(),
       );
       for (final payment in _payments[key]!) {
         yield TableRow(
@@ -106,7 +108,9 @@ class FinancePageState extends State<FinancePage> {
               textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.bodyText2,
             ),
-          ].map((e) => Padding(padding: const EdgeInsets.all(2), child: e)).toList(),
+          ]
+              .map((e) => Padding(padding: const EdgeInsets.all(2), child: e))
+              .toList(),
         );
       }
     }
@@ -125,7 +129,8 @@ class FinancePageState extends State<FinancePage> {
         ),
       );
     }
-    final totalPayment = _totalPayments.values.reduce((value, element) => value + element);
+    final totalPayment =
+        _totalPayments.values.reduce((value, element) => value + element);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.max,
@@ -159,37 +164,42 @@ class FinancePageState extends State<FinancePage> {
                         Text(
                           '#',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         Text(
                           'Item ID',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         Text(
                           'Date',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         Text(
                           'Total',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         Text(
                           'Paid',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                       ],
                     ),

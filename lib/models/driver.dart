@@ -1,22 +1,27 @@
 class Driver {
   int? id;
+  String profilePic;
   String name, email, icNumber, phone, password, address;
-  String icPath, licensePath, eHailingLicensePath, eHailingInsurancePath;
-  String carInsurancePath, roadTaxPath, carGrantPath;
+  String icDocument, drivingLicense, ehailingLicense, ehailingInsurance;
+  String carInsurancePath, roadTaxPath, carGrant;
+  String drivingLicenseExpiry, ehailingLicenseExpiry;
   Driver({
     this.id,
+    this.profilePic = '',
     this.name = '',
     this.email = '',
     this.icNumber = '',
     this.phone = '',
     this.password = '',
     this.address = '',
-    this.icPath = '',
-    this.licensePath = '',
-    this.eHailingLicensePath = '',
-    this.eHailingInsurancePath = '',
+    this.icDocument = '',
+    this.drivingLicense = '',
+    this.ehailingLicense = '',
+    this.ehailingInsurance = '',
     this.carInsurancePath = '',
     this.roadTaxPath = '',
-    this.carGrantPath = '',
+    this.carGrant = '',
+    this.drivingLicenseExpiry = '',
+    this.ehailingLicenseExpiry = '',
   });
 }

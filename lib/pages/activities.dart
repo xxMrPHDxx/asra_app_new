@@ -42,7 +42,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
         msg:
             'Getting orders:  /orders/${job.orderId}/${job.itemId}/activities');
     final res =
-        await Api.get('/orders/${job.orderId}/${job.itemId}/activities', {
+        await Api.json.get('/orders/${job.orderId}/${job.itemId}/activities', {
       'Authorization': 'Bearer ${widget.authToken}',
     });
     if (!res['success']) {

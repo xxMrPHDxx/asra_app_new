@@ -14,13 +14,14 @@ class AddActivityWidget extends StatelessWidget {
   final String authToken;
   final Job job;
   final Function? onInsert;
-  AddActivityWidget(this.authToken, this.job, {this.onInsert, Key? key}) : super(key: key) {
+  AddActivityWidget(this.authToken, this.job, {this.onInsert, Key? key})
+      : super(key: key) {
     _getActivityTypes();
   }
 
   Future<List<_ActivityType>> _getActivityTypes() async {
     final List<_ActivityType> activityTypes = [];
-    final result = await Api.get('/activity/types');
+    final result = await Api.json.get('/activity/types');
     if (!result['success']) {
       throw Exception(result['message']);
     } else {
@@ -33,7 +34,8 @@ class AddActivityWidget extends StatelessWidget {
     return activityTypes;
   }
 
-  Future<void> _insertActivity(BuildContext context, int id, String note) async {
+  Future<void> _insertActivity(
+      BuildContext context, int id, String note) async {
     if (note.isEmpty) return;
     final response = await Api.json.post(
       '/orders/${job.orderId}/${job.itemId}/activity',
@@ -78,7 +80,9 @@ class AddActivityWidget extends StatelessWidget {
       builder: (ctx, snapshot) {
         return StatefulBuilder(
           builder: (context, setState) {
-            if (!snapshot.hasData || snapshot.data!.isEmpty || snapshot.hasError) {
+            if (!snapshot.hasData ||
+                snapshot.data!.isEmpty ||
+                snapshot.hasError) {
               return const Center(
                 child: CircularProgressIndicator(),
               );
@@ -113,7 +117,10 @@ class AddActivityWidget extends StatelessWidget {
                                   value: type.id,
                                   child: Text(
                                     type.name,
-                                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1!
+                                        .copyWith(
                                           fontSize: 12,
                                         ),
                                   ),
@@ -149,7 +156,9 @@ class AddActivityWidget extends StatelessWidget {
                       const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
-                          _insertActivity(context, activityId, activityNote.text).then((_) {
+                          _insertActivity(
+                                  context, activityId, activityNote.text)
+                              .then((_) {
                             Navigator.of(context).pop();
                           });
                         },

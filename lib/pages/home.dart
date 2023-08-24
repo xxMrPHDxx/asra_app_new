@@ -66,13 +66,17 @@ class _HomePageState extends State<HomePage> {
   void _loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('AUTH_TOKEN')) {
-      if (mounted)
+      if (mounted) {
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginPage()));
+          MaterialPageRoute(
+            builder: (context) => const LoginPage(),
+          ),
+        );
+      }
       return;
     }
     _token = prefs.getString('AUTH_TOKEN')!;
-    final response = await Api.get('/driver', {
+    final response = await Api.json.get('/driver', {
       'Authorization': 'Bearer $_token',
     });
     if (!response['success']) {

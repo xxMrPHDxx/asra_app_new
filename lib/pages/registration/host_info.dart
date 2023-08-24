@@ -48,7 +48,9 @@ class _HostInfoRegistrationState extends State<HostInfoRegistration> {
               prefixIcon: const Icon(Icons.person),
               hint: 'Johnny Depp',
               value: widget.host.name,
-              onChange: (name) => setState(() => widget.host.name = name),
+              onChange: (name) => setState(() {
+                widget.host.name = name;
+              }),
             ),
           ),
           const SizedBox(height: 10),
@@ -137,30 +139,22 @@ class _HostInfoRegistrationState extends State<HostInfoRegistration> {
             ),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'Identity Card Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'Identity Card',
-              value: widget.host.icPath,
-              allowedExtensions: const ['pdf'],
-              onChange: (ic) => setState(() {
-                widget.host.icPath = ic;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'Identity Card',
+            value: widget.host.icPath,
+            onChange: (path) => setState(() {
+              widget.host.icPath = path;
+            }),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'License Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'License',
-              value: widget.host.bankPath,
-              allowedExtensions: const ['pdf'],
-              onChange: (path) => setState(() {
-                widget.host.bankPath = path;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'License',
+            value: widget.host.bankPath,
+            onChange: (path) => setState(() {
+              widget.host.bankPath = path;
+            }),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

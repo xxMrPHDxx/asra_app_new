@@ -120,69 +120,49 @@ class _DriverInfoRegistrationState extends State<DriverInfoRegistration> {
             ),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'Identity Card Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'Identity Card',
-              value: widget.driver.icPath,
-              allowedExtensions: const ['pdf'],
-              onChange: (ic) => setState(() {
-                widget.driver.icPath = ic;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'Identity Card',
+            value: widget.driver.icDocument,
+            onChange: (path) => setState(() {
+              widget.driver.icDocument = path;
+            }),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'License Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'License',
-              value: widget.driver.licensePath,
-              allowedExtensions: const ['pdf'],
-              onChange: (path) => setState(() {
-                widget.driver.licensePath = path;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'License',
+            value: widget.driver.drivingLicense,
+            onChange: (path) => setState(() {
+              widget.driver.drivingLicense = path;
+            }),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'E-hailing License Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'E-hailing License',
-              value: widget.driver.eHailingLicensePath,
-              allowedExtensions: const ['pdf'],
-              onChange: (path) => setState(() {
-                widget.driver.eHailingLicensePath = path;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'E-hailing License',
+            value: widget.driver.ehailingLicense,
+            onChange: (path) => setState(() {
+              widget.driver.ehailingLicense = path;
+            }),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'E-hailing Insurance Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'E-hailing Insurance',
-              value: widget.driver.eHailingInsurancePath,
-              allowedExtensions: const ['pdf'],
-              onChange: (path) => setState(() {
-                widget.driver.eHailingInsurancePath = path;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'E-hailing Insurance',
+            value: widget.driver.ehailingInsurance,
+            onChange: (path) => setState(() {
+              widget.driver.ehailingInsurance = path;
+            }),
           ),
           const SizedBox(height: 10),
-          FormGroup(
-            label: 'Car Grant Document',
-            child: CustomFileFormField(
-              enabled: widget.enabled,
-              title: 'Car Grant',
-              value: widget.driver.carGrantPath,
-              allowedExtensions: const ['pdf'],
-              onChange: (path) => setState(() {
-                widget.driver.carGrantPath = path;
-              }),
-            ),
+          CustomFileUploadField(
+            enabled: widget.enabled,
+            title: 'Car Grant',
+            value: widget.driver.carGrant,
+            onChange: (path) => setState(() {
+              widget.driver.carGrant = path;
+            }),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

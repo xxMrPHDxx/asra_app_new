@@ -56,7 +56,7 @@ class _OffersPageState extends State<OffersPage> {
   }
 
   Future<void> _getJobOffers() async {
-    final response = await Api.get('/driver/offers', {
+    final response = await Api.json.get('/driver/offers', {
       'Authorization': 'Bearer ${widget.authToken}',
     });
     if (!response['success']) {
@@ -107,7 +107,7 @@ class _OffersPageState extends State<OffersPage> {
   void _acceptJob(final Job booking) async {
     setState(() => _busy = true);
     try {
-      final response = await Api.get(
+      final response = await Api.json.get(
         '/orders/${booking.orderId}/${booking.itemId}/accept',
         {
           'Authorization': 'Bearer ${widget.authToken}',
@@ -132,7 +132,7 @@ class _OffersPageState extends State<OffersPage> {
       _busy = true;
     });
     try {
-      final response = await Api.get(
+      final response = await Api.json.get(
         '/orders/${booking.orderId}/${booking.itemId}/cancel',
         {
           'Authorization': 'Bearer ${widget.authToken}',

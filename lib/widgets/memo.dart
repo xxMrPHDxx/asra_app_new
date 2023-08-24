@@ -41,7 +41,7 @@ class _MemoViewerState extends State<MemoViewer> {
 
   void _getMemos() async {
     try {
-      final response = await Api.get('/memo', {
+      final response = await Api.json.get('/memo', {
         'Authorization': 'Bearer ${widget.authToken}',
       });
       if (!response['success']) throw Error(response['message']);

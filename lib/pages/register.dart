@@ -88,58 +88,20 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<int> _registerVehicle(Vehicle vehicle, RegisteredUser host) async {
     try {
-      final docs = await Future.wait([
-        if (vehicle.insurancePath.isNotEmpty)
-          MultipartFile.fromPath(
-            'insurance',
-            vehicle.insurancePath,
-          ),
-        if (vehicle.roadTaxPath.isNotEmpty)
-          MultipartFile.fromPath(
-            'roadtax',
-            vehicle.roadTaxPath,
-          ),
-        if (vehicle.ownerApprovalPath.isNotEmpty)
-          MultipartFile.fromPath(
-            'owner_approval',
-            vehicle.ownerApprovalPath,
-          ),
-        if (vehicle.frontView.isNotEmpty)
-          MultipartFile.fromPath(
-            'front_view',
-            vehicle.frontView,
-          ),
-        if (vehicle.leftView.isNotEmpty)
-          MultipartFile.fromPath(
-            'left_view',
-            vehicle.leftView,
-          ),
-        if (vehicle.rightView.isNotEmpty)
-          MultipartFile.fromPath(
-            'right_view',
-            vehicle.rightView,
-          ),
-        if (vehicle.rearView.isNotEmpty)
-          MultipartFile.fromPath(
-            'rear_view',
-            vehicle.rearView,
-          ),
-        if (vehicle.innerView.isNotEmpty)
-          MultipartFile.fromPath(
-            'inner_view',
-            vehicle.innerView,
-          ),
-      ]);
-      final Map<String, dynamic> data = {
+      final response = await Api.json.post('/vehicle/register', {
         'owner_id': vehicle.ownerId,
         'plate': vehicle.plateNo,
         'model_id': vehicle.modelId,
         'host_id': host.id,
-      };
-      for (final doc in docs) {
-        data[doc.field] = doc;
-      }
-      final response = await Api.multipart.post('/vehicle/register', data, {
+        'insurance': vehicle.insurancePath,
+        'roadtax': vehicle.roadTaxPath,
+        'owner_approval': vehicle.ownerApprovalPath,
+        'front_view': vehicle.frontView,
+        'left_view': vehicle.leftView,
+        'right_view': vehicle.rightView,
+        'rear_view': vehicle.rearView,
+        'inner_view': vehicle.innerView,
+      }, {
         'Authorization': 'Bearer ${host.token}',
       });
       if (!response['success']) throw Error(response['message']);
@@ -149,24 +111,15 @@ class _RegistrationPageState extends State<RegistrationPage> {
         throw Error('Vehicle registration failed: ${e.message}');
       } else if (e is FileSystemException) {
         throw Error('Some file(s) cannot be opened! [Path=${e.path}]');
+      } else {
+        rethrow;
       }
-      rethrow;
     }
   }
 
   Future<int> _registerOwner(Owner owner) async {
     try {
-      final docs = await Future.wait([
-        MultipartFile.fromPath(
-          'ic_doc',
-          owner.icPath,
-        ),
-        MultipartFile.fromPath(
-          'bank_doc',
-          owner.bankStatementPath,
-        ),
-      ]);
-      final response = await Api.multipart.post('/owner/register', {
+      final response = await Api.json.post('/owner/register', {
         'name': owner.name,
         'gender': owner.gender,
         'phone_no': owner.phone,
@@ -174,8 +127,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         'ic_number': owner.ic,
         'bank_name': owner.bankName,
         'bank_no': owner.bankNo,
-        'ic_doc': docs[0],
-        'bank_doc': docs[1],
+        'ic_doc': owner.icPath,
+        'bank_doc': owner.bankStatementPath,
       });
       if (!response['success']) throw Error(response['message']);
       return response['owner_id'];
@@ -191,17 +144,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<RegisteredUser> _registerHost() async {
     try {
-      final docs = await Future.wait([
-        MultipartFile.fromPath(
-          'ic_doc',
-          _host.icPath,
-        ),
-        MultipartFile.fromPath(
-          'bank_doc',
-          _host.bankPath,
-        ),
-      ]);
-      final response = await Api.multipart.post('/host/register', {
+      final response = await Api.json.post('/host/register', {
         'name': _host.name,
         'ic_number': _host.icNumber,
         'gender': _host.gender,
@@ -209,8 +152,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         'address': _host.address,
         'email': _host.email,
         'password': _host.password,
-        'ic_doc': docs[0],
-        'bank_doc': docs[1],
+        'ic_doc': _host.icPath,
+        'bank_doc': _host.bankPath,
       });
       if (!response['success']) throw Error(response['message']);
       return RegisteredUser(
@@ -229,29 +172,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   Future<RegisteredUser> _registerDriver(int driverType) async {
     try {
-      final docs = await Future.wait([
-        MultipartFile.fromPath(
-          'ic_doc',
-          _driver.icPath,
-        ),
-        MultipartFile.fromPath(
-          'license_doc',
-          _driver.licensePath,
-        ),
-        MultipartFile.fromPath(
-          'ehailing_license',
-          _driver.eHailingLicensePath,
-        ),
-        MultipartFile.fromPath(
-          'ehailing_insurance',
-          _driver.eHailingInsurancePath,
-        ),
-        MultipartFile.fromPath(
-          'car_grant',
-          _driver.carGrantPath,
-        ),
-      ]);
-      final response = await Api.multipart.post('/driver/register', {
+      final response = await Api.json.post('/driver/register', {
         'driver_type': driverType,
         'name': _driver.name,
         'email': _driver.email,
@@ -259,11 +180,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
         'phone_no': _driver.phone,
         'password': _driver.password,
         'address': _driver.address,
-        'ic_doc': docs[0],
-        'license_doc': docs[1],
-        'ehailing_license': docs[2],
-        'ehailing_insurance': docs[3],
-        'car_grant': docs[4],
+        'ic_doc': _driver.icDocument,
+        'license_doc': _driver.drivingLicense,
+        'ehailing_license': _driver.ehailingLicense,
+        'ehailing_insurance': _driver.ehailingInsurance,
+        'car_grant': _driver.carGrant,
       });
       if (!response['success']) {
         throw Error(response['message']);

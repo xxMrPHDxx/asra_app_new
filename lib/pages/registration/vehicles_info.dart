@@ -20,7 +20,7 @@ class VehicleModel {
 }
 
 Future<List<VehicleClass>> getVehicleClasses() async {
-  final response = await Api.get('/vehicle/classes');
+  final response = await Api.json.get('/vehicle/classes');
   if (!response['success']) {
     throw Error(response['message']);
   }
@@ -31,7 +31,7 @@ Future<List<VehicleClass>> getVehicleClasses() async {
 }
 
 Future<List<VehicleModel>> getVehicleModels(int id) async {
-  final response = await Api.get('/vehicle/$id/models');
+  final response = await Api.json.get('/vehicle/$id/models');
   if (!response['success']) {
     throw Exception(response['message']);
   }
@@ -151,108 +151,81 @@ class _VehicleInfoState extends State<_VehicleInfo> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Insurance Document',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Insurance',
-                    value: vehicle.insurancePath,
-                    allowedExtensions: const ['pdf'],
-                    onChange: (path) => setState(() {
-                      vehicle.insurancePath = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Insurance',
+                  value: vehicle.insurancePath,
+                  onChange: (path) => setState(() {
+                    vehicle.insurancePath = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Road Tax Document',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Road Tax',
-                    value: vehicle.roadTaxPath,
-                    allowedExtensions: const ['pdf'],
-                    onChange: (path) => setState(() {
-                      vehicle.roadTaxPath = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Road Tax',
+                  value: vehicle.roadTaxPath,
+                  onChange: (path) => setState(() {
+                    vehicle.roadTaxPath = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Owner Approval Document',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Owner Approval',
-                    value: vehicle.ownerApprovalPath,
-                    allowedExtensions: const ['pdf'],
-                    onChange: (path) => setState(() {
-                      vehicle.ownerApprovalPath = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Owner Approval',
+                  value: vehicle.ownerApprovalPath,
+                  onChange: (path) => setState(() {
+                    vehicle.ownerApprovalPath = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Vehicle View (Front)',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Front View',
-                    value: vehicle.frontView,
-                    allowedExtensions: const ['jpg', 'png'],
-                    onChange: (path) => setState(() {
-                      vehicle.frontView = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Front View',
+                  value: vehicle.frontView,
+                  uploadType: FileUploadType.image,
+                  onChange: (path) => setState(() {
+                    vehicle.frontView = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Vehicle View (Left)',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Left View',
-                    value: vehicle.leftView,
-                    allowedExtensions: const ['jpg', 'png'],
-                    onChange: (path) => setState(() {
-                      vehicle.leftView = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Left View',
+                  value: vehicle.leftView,
+                  uploadType: FileUploadType.image,
+                  onChange: (path) => setState(() {
+                    vehicle.leftView = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Vehicle View (Right)',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Right View',
-                    value: vehicle.rightView,
-                    allowedExtensions: const ['jpg', 'png'],
-                    onChange: (path) => setState(() {
-                      vehicle.rightView = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Right View',
+                  value: vehicle.rightView,
+                  uploadType: FileUploadType.image,
+                  onChange: (path) => setState(() {
+                    vehicle.rightView = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Vehicle View (Rear)',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Rear View',
-                    value: vehicle.rearView,
-                    allowedExtensions: const ['jpg', 'png'],
-                    onChange: (path) => setState(() {
-                      vehicle.rearView = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Rear View',
+                  value: vehicle.rearView,
+                  uploadType: FileUploadType.image,
+                  onChange: (path) => setState(() {
+                    vehicle.rearView = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
-                FormGroup(
-                  label: 'Vehicle View (Inner)',
-                  child: CustomFileFormField(
-                    enabled: widget.enabled,
-                    title: 'Inner View',
-                    value: vehicle.innerView,
-                    allowedExtensions: const ['jpg', 'png'],
-                    onChange: (path) => setState(() {
-                      vehicle.innerView = path;
-                    }),
-                  ),
+                CustomFileUploadField(
+                  enabled: widget.enabled,
+                  title: 'Inner View',
+                  value: vehicle.innerView,
+                  uploadType: FileUploadType.image,
+                  onChange: (path) => setState(() {
+                    vehicle.innerView = path;
+                  }),
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
