@@ -8,6 +8,7 @@ import 'package:asra_app_new/pages/dashboard/trip.dart';
 import 'package:asra_app_new/pages/login.dart';
 import 'package:asra_app_new/utils/colors.dart';
 import 'package:asra_app_new/utils/custom_style.dart';
+import 'package:asra_app_new/utils/viewer.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
@@ -189,6 +190,17 @@ class _HomePageState extends State<HomePage> {
                 //     authToken: _token,
                 //   ),
                 // ));
+              },
+            ),
+            FloatingActionButton.small(
+              heroTag: 'showPermit',
+              tooltip: 'Show Permit',
+              child: const Icon(
+                FontAwesomeIcons.circleInfo,
+                color: CustomColor.accentColor,
+              ),
+              onPressed: () {
+                showPdf(context, 'uploads/permit.pdf');
               },
             ),
           ],

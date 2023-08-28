@@ -10,7 +10,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/pages/home.dart';
@@ -245,16 +244,16 @@ class _AccountPageState extends State<AccountPage> {
             FormGroup(
               label: 'Driving License Expiry Date',
               child: DatePickerField(
-                value: _info.licenseExpiry,
+                value: _info.drivingLicenseExpiry,
                 onChanged: (date) async {
                   Fluttertoast.showToast(msg: 'Date: $date');
-                  final res = await Api.json.patch('/driver', {
+                  await Api.json.patch('/driver', {
                     'driving_license_expiry': date,
                   }, {
                     'Authorization': 'Bearer ${widget.authToken}',
                   });
                   setState(() {
-                    _info.licenseExpiry = date;
+                    _info.drivingLicenseExpiry = date;
                   });
                 },
               ),
@@ -278,16 +277,16 @@ class _AccountPageState extends State<AccountPage> {
             FormGroup(
               label: 'E-Hailing License Expiry Date',
               child: DatePickerField(
-                value: _info.licenseExpiry,
+                value: _info.ehailingLicenseExpiry,
                 onChanged: (date) async {
                   Fluttertoast.showToast(msg: 'Date: $date');
-                  final res = await Api.json.patch('/driver', {
+                  await Api.json.patch('/driver', {
                     'ehailing_license_expiry': date,
                   }, {
                     'Authorization': 'Bearer ${widget.authToken}',
                   });
                   setState(() {
-                    _info.licenseExpiry = date;
+                    _info.ehailingLicenseExpiry = date;
                   });
                 },
               ),
