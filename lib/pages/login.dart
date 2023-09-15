@@ -29,13 +29,6 @@ class _LoginPageState extends State<LoginPage> {
 
   bool checkRememberMe = false;
 
-  @override
-  void initState() {
-    super.initState();
-    emailController.text = 'arif.ghaffar@gmail.com';
-    passwordController.text = '1234';
-  }
-
   void _login() async {
     final response = await Api.json.post('/login', {
       'user': emailController.text,
@@ -59,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Column(
         children: [
           Text(
-            'Vehicles Registration', //S.of(context).signInAccount,
+            S.of(context).signInAccount,
             style: GoogleFonts.roboto(
               fontSize: Dimensions.extraLargeTextSize,
               fontWeight: FontWeight.bold,
@@ -83,8 +76,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: Dimensions.heightSize),
                   CustomTextField(
-                      controller: emailController,
-                      hintText: S.of(context).email),
+                    controller: emailController,
+                    hintText: S.of(context).email,
+                  ),
                   const SizedBox(height: Dimensions.heightSize * 2),
                   Text(
                     S.of(context).password,

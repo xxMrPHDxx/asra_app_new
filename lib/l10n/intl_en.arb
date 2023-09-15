@@ -1,6 +1,22 @@
 {
-    "registerVehicle": "Vehicles Registration",
-    "registerDriver": "Driver Information",
-    "registrationType": "Select Type",
-    "registerHost": "Host Information"
+  "email": "Email",
+  "errorEmpty": "This field cannot be empty!",
+  "password": "Password",
+  "registerVehicle": "Vehicles Registration",
+  "registerDriver": "Driver Information",
+  "registrationType": "Select Type",
+  "registerHost": "Host Information",
+  "rememberMe": "Remember Me",
+  "forgotPassword": "Forgot Password",
+  "signIn": "Sign In",
+  "signInAccount": "Sign In Account",
+  "signOut": "Sign Out",
+  "signUp": "Sign Up",
+  "partner": "Partner Driver",
+  "phone": "Phone Number",
+  "dontHaveAccount": "Don't have an account?",
+  "driver": "Driver Only",
+  "getStarted": "Get Started",
+  "perfectTaxiBooking": "Perfect Taxi Booking",
+  "hosting": "Hosting"
 }

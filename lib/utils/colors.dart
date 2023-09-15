@@ -12,4 +12,7 @@ class CustomColor {
   static const Color greenColor = Color(0xFF03A60F);
   static const Color greenLightColor = Color(0xFFE5F6E7);
   static const Color blueColor = Color(0xFF307AFF);
+
+  // Miscellaneous colors
+  static const Color jobAcceptedColor = Color.fromARGB(255, 19, 120, 187);
 }

@@ -79,7 +79,7 @@ class _DriverTypeRegistrationState extends State<DriverTypeRegistration> {
           InkWell(
             onTap: () => widget.onChange(1),
             child: _DriverType(
-              caption: 'Partner Driver',
+              caption: S.of(context).partner,
               image: Image.asset('assets/partner.png'),
               selected: widget.value == 1,
             ),
@@ -87,7 +87,7 @@ class _DriverTypeRegistrationState extends State<DriverTypeRegistration> {
           InkWell(
             onTap: () => widget.onChange(2),
             child: _DriverType(
-              caption: 'Driver Only',
+              caption: S.of(context).driver,
               image: Image.asset('assets/driver.png'),
               selected: widget.value == 2,
             ),
@@ -95,7 +95,7 @@ class _DriverTypeRegistrationState extends State<DriverTypeRegistration> {
           InkWell(
             onTap: () => widget.onChange(3),
             child: _DriverType(
-              caption: 'Hosting',
+              caption: S.of(context).hosting,
               image: Image.asset('assets/host.png'),
               selected: widget.value == 3,
             ),

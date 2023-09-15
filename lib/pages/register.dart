@@ -16,7 +16,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/error.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
 
 import '../widgets/templates.dart';
 
@@ -315,8 +314,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
             case 3:
               _registerType = _RegisterType.hosting;
               break;
-            default:
-              return;
           }
         });
       },

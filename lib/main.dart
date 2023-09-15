@@ -14,6 +14,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:socket_io_client/socket_io_client.dart' as sio;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 const notificationId = 'ASRA_NotificationChannel';
 const notificationTitle = 'ASRA Travel';
@@ -41,7 +42,8 @@ void onStart(ServiceInstance service) async {
   BackgroundLocation.getLocationUpdates((loc) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
-    if (!prefs.containsKey('AUTH_TOKEN') || !prefs.containsKey('TRACKING_ENABLED')) return;
+    if (!prefs.containsKey('AUTH_TOKEN') ||
+        !prefs.containsKey('TRACKING_ENABLED')) return;
     final token = prefs.getString('AUTH_TOKEN')!;
     await Api.json.post(
       '/driver/locate',
@@ -90,6 +92,8 @@ void onStart(ServiceInstance service) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
+
+  await initializeDateFormatting();
 
   final service = FlutterBackgroundService();
   await service.configure(

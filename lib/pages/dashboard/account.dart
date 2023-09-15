@@ -53,7 +53,7 @@ class _AccountPageState extends State<AccountPage> {
     if (response['success']) {
       final info = response['info'];
       setState(() {
-        _info.profilePic = info['profile_pic'];
+        _info.profilePic = info['profile_pic'] ?? '';
         _info.name = info['name'];
         _info.email = info['email'];
         _info.address = info['address'];
@@ -62,8 +62,8 @@ class _AccountPageState extends State<AccountPage> {
         _info.ehailingLicense = info['ehailing_license'];
         _info.ehailingInsurance = info['ehailing_insurance'];
         _info.carGrant = info['car_grant'];
-        _info.drivingLicenseExpiry = info['driving_license_expiry'];
-        _info.ehailingLicenseExpiry = info['ehailing_license_expiry'];
+        _info.drivingLicenseExpiry = info['driving_license_expiry'] ?? '';
+        _info.ehailingLicenseExpiry = info['ehailing_license_expiry'] ?? '';
         _loading = false;
       });
     } else {

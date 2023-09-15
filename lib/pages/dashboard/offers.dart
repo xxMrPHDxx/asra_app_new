@@ -212,6 +212,10 @@ class _OffersPageState extends State<OffersPage> {
             if (subjobs != null) ...subjobs.map((j) => j.request),
             parentJob.placeTo,
           ];
+          final isJobPending = parentJob.orderStatus.toLowerCase() == 'p';
+          final darkColor = isJobPending
+              ? CustomColor.secondaryColor
+              : CustomColor.jobAcceptedColor;
           return Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 5,
@@ -219,11 +223,11 @@ class _OffersPageState extends State<OffersPage> {
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: CustomColor.secondaryColor,
+                color: darkColor,
                 border: Border.all(style: BorderStyle.none),
                 boxShadow: [
                   BoxShadow(
-                    color: CustomColor.secondaryColor.withOpacity(0.7),
+                    color: darkColor.withOpacity(0.7),
                     blurRadius: 2,
                     offset: const Offset(3, 3),
                   ),
@@ -299,7 +303,7 @@ class _OffersPageState extends State<OffersPage> {
                             ),
                           const SizedBox(height: 5),
                           Text(
-                            df.format(parentJob.dateFrom),
+                            df.format(parentJob.dateFrom.toLocal()),
                             style: CustomStyle.textStyle
                                 .copyWith(color: CustomColor.accentColor),
                           ),
@@ -385,14 +389,14 @@ class _OffersPageState extends State<OffersPage> {
                               const SizedBox(height: 5),
                             if (parentJob.typeId == 1)
                               Text(
-                                'ETD: ${parentJob.etd == null ? '' : df.format(parentJob.etd!)}',
+                                'ETD: ${parentJob.etd == null ? '' : df.format(parentJob.etd!.toLocal())}',
                                 style: CustomStyle.textStyle,
                               ),
                             if (parentJob.typeId == 1)
                               const SizedBox(height: 5),
                             if (parentJob.typeId == 1)
                               Text(
-                                'ETA: ${parentJob.eta == null ? '' : df.format(parentJob.eta!)}',
+                                'ETA: ${parentJob.eta == null ? '' : df.format(parentJob.eta!.toLocal())}',
                                 style: CustomStyle.textStyle,
                               ),
                             const SizedBox(height: 5),
@@ -403,7 +407,7 @@ class _OffersPageState extends State<OffersPage> {
                             const SizedBox(height: 5),
                             Row(
                               children: [
-                                parentJob.orderStatus.toLowerCase() == 'p'
+                                isJobPending
                                     ? TextButton(
                                         style: Theme.of(context)
                                             .elevatedButtonTheme

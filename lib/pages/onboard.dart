@@ -4,6 +4,7 @@ import 'package:asra_app_new/generated/l10n.dart';
 import 'package:asra_app_new/utils/dimensions.dart';
 import 'package:asra_app_new/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login.dart';
 
@@ -45,10 +46,24 @@ class OnBoardPage extends StatefulWidget {
 }
 
 class _OnBoardPageState extends State<OnBoardPage> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool('FIRST_TIME', false);
+      setState(() => _loading = false);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
     final totalPages = pages.length;
-    final padding = (MediaQuery.of(context).size.width - 25 - 24 * (pages.length - 1) - 4) / 2;
+    final padding =
+        (MediaQuery.of(context).size.width - 25 - 24 * (pages.length - 1) - 4) /
+            2;
     return PageView.builder(
       itemCount: totalPages,
       itemBuilder: (context, index) {
@@ -101,7 +116,9 @@ class _OnBoardPageState extends State<OnBoardPage> {
                                 child: Container(
                                   width: index == i ? 25 : 20.0,
                                   decoration: BoxDecoration(
-                                    color: index == i ? CustomColor.accentColor : Colors.white,
+                                    color: index == i
+                                        ? CustomColor.accentColor
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                 ),
@@ -118,7 +135,8 @@ class _OnBoardPageState extends State<OnBoardPage> {
                             width: 200,
                             decoration: BoxDecoration(
                               color: CustomColor.accentColor,
-                              borderRadius: BorderRadius.circular(Dimensions.radius * 0.5),
+                              borderRadius: BorderRadius.circular(
+                                  Dimensions.radius * 0.5),
                             ),
                             child: Center(
                               child: Text(
@@ -133,7 +151,11 @@ class _OnBoardPageState extends State<OnBoardPage> {
                           ),
                         ),
                         onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => const LoginPage()));
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
                         },
                       ),
               ],

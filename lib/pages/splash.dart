@@ -1,4 +1,6 @@
 import 'package:asra_app_new/generated/l10n.dart';
+import 'package:asra_app_new/pages/home.dart';
+import 'package:asra_app_new/pages/login.dart';
 import 'package:asra_app_new/pages/onboard.dart';
 import 'package:asra_app_new/widgets/templates.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,8 @@ import 'package:asra_app_new/utils/colors.dart';
 import 'package:asra_app_new/utils/dimensions.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -21,14 +25,20 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     Timer.periodic(
       const Duration(milliseconds: 30),
-      (t) {
+      (t) async {
         setState(() => _turns += 0.01);
         if (_turns < 1) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => const OnBoardPage(),
-          ),
-        );
+        final prefs = await SharedPreferences.getInstance();
+        final firstTime = !prefs.containsKey('FIRST_TIME');
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => prefs.containsKey('AUTH_TOKEN')
+                  ? const HomePage()
+                  : (firstTime ? const OnBoardPage() : const LoginPage()),
+            ),
+          );
+        }
         t.cancel();
       },
     );

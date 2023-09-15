@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/pages/dashboard/account.dart';
+import 'package:asra_app_new/pages/dashboard/finance.dart';
 import 'package:asra_app_new/pages/dashboard/offers.dart';
 import 'package:asra_app_new/pages/dashboard/trip.dart';
 import 'package:asra_app_new/pages/login.dart';
@@ -12,7 +13,6 @@ import 'package:asra_app_new/utils/viewer.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,7 +46,6 @@ LoginData getLoginData(final String token) {
   final String data =
       const Utf8Decoder().convert(base64Decode(token.split('.')[1]));
   final Map<String, dynamic> payload = jsonDecode(data);
-  Fluttertoast.showToast(msg: "Data: $data");
   return LoginData(
     payload['ID'],
     payload['user_id'],
@@ -99,7 +98,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return TripsPage(_loginData, _token);
       case 2:
-      // return FinancePage(_loginData, _token);
+        return FinancePage(_loginData, _token);
       case 3:
         break;
       case 4:
