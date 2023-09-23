@@ -31,12 +31,12 @@ class CustomStyle {
   );
 
   static var focusBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+    borderRadius: const BorderRadius.all(Radius.circular(5.0)),
     borderSide: BorderSide(color: Colors.black.withOpacity(0.1), width: 2.0),
   );
 
   static var focusErrorBorder = OutlineInputBorder(
-    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+    borderRadius: const BorderRadius.all(Radius.circular(5.0)),
     borderSide: BorderSide(color: Colors.black.withOpacity(0.1), width: 1.0),
   );
 }

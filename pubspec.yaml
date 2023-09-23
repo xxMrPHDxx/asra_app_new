@@ -49,7 +49,7 @@ dev_dependencies:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/logo-sm.png"
+  image_path: "assets/new_logo.png"
 
 flutter:
 

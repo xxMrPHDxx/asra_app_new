@@ -12,6 +12,7 @@ class Job {
   DateTime? etd, eta;
   double fromLat, fromLon, toLat, toLon;
   String request;
+  String? note;
   Job(
     this.orderId,
     this.itemId,
@@ -35,5 +36,6 @@ class Job {
     required this.toLat,
     required this.toLon,
     required this.request,
+    this.note,
   });
 }

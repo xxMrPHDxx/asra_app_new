@@ -6,6 +6,7 @@ import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/pages/home.dart';
 import 'package:asra_app_new/models/job.dart';
 import 'package:asra_app_new/error.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:socket_io_client/socket_io_client.dart' as sio;
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +89,7 @@ class _OffersPageState extends State<OffersPage> {
             toLat: double.tryParse(booking['lat_to'] ?? '') ?? 0,
             toLon: double.tryParse(booking['lon_to'] ?? '') ?? 0,
             request: booking['request'] ?? '-',
+            note: booking['note'] ?? '-',
           );
           if (job.typeId == 3) {
             if (_dailyUse.containsKey(job.quotationId)) {
@@ -166,8 +168,7 @@ class _OffersPageState extends State<OffersPage> {
       );
     }
     final parentJobs = _bookings.values
-        .where(
-            (job) => job.typeId != 3 && (job.subJob == null || job.subJob == 0))
+        .where((job) => job.typeId != 3 && (job.subJob ?? 0) == 0)
         .toList(growable: false);
     final keys = _dailyUse.keys.toList();
     return Padding(
@@ -237,7 +238,6 @@ class _OffersPageState extends State<OffersPage> {
                 ),
               ),
               child: Padding(
-                // padding: const EdgeInsets.all(10),
                 padding: EdgeInsets.zero,
                 child: ExpansionTile(
                   controlAffinity: ListTileControlAffinity.trailing,
@@ -256,15 +256,6 @@ class _OffersPageState extends State<OffersPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             if (![5, 6, 7].contains(parentJob.typeId))
-                              // SvgPicture.asset(
-                              //     height: 30,
-                              //     'assets/svg/cheuffeur.svg',
-                              //     colorFilter: const ColorFilter.mode(
-                              //       CustomColor.accentColor,
-                              //       BlendMode.srcIn,
-                              //     ),
-                              //   )
-                              // :
                               Icon(
                                 serviceIcons[parentJob.typeId],
                                 color: CustomColor.accentColor,
@@ -408,7 +399,7 @@ class _OffersPageState extends State<OffersPage> {
                             Row(
                               children: [
                                 isJobPending
-                                    ? TextButton(
+                                    ? IconButton(
                                         style: Theme.of(context)
                                             .elevatedButtonTheme
                                             .style!
@@ -422,13 +413,13 @@ class _OffersPageState extends State<OffersPage> {
                                             : () {
                                                 _acceptJob(parentJob);
                                               },
-                                        child: const Icon(
+                                        icon: const Icon(
                                           FontAwesomeIcons.check,
                                           color: Colors.green,
                                           size: 20,
                                         ),
                                       )
-                                    : TextButton(
+                                    : IconButton(
                                         style: Theme.of(context)
                                             .elevatedButtonTheme
                                             .style!
@@ -442,12 +433,47 @@ class _OffersPageState extends State<OffersPage> {
                                             : () {
                                                 _cancelJob(parentJob);
                                               },
-                                        child: const Icon(
+                                        icon: const Icon(
                                           FontAwesomeIcons.xmark,
                                           color: Colors.red,
                                           size: 20,
                                         ),
                                       ),
+                                if (parentJob.note != null)
+                                  IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text(
+                                            'Trip Information',
+                                            style: GoogleFonts.roboto(
+                                              fontSize: 26,
+                                            ),
+                                          ),
+                                          content: SizedBox(
+                                            height: 200,
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    parentJob.note!,
+                                                    style:
+                                                        CustomStyle.textStyle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      FontAwesomeIcons.circleInfo,
+                                      color: Colors.grey,
+                                      size: 20,
+                                    ),
+                                  ),
                               ],
                             ),
                           ],
