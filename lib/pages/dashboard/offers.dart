@@ -1,23 +1,19 @@
-import 'package:asra_app_new/utils/colors.dart';
-import 'package:asra_app_new/utils/custom_style.dart';
+import 'package:asra_app_new/widgets/memo.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/pages/home.dart';
 import 'package:asra_app_new/models/job.dart';
 import 'package:asra_app_new/error.dart';
+import 'package:asra_app_new/widgets/job_offers.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:socket_io_client/socket_io_client.dart' as sio;
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 
-const serviceIcons = {
-  1: FontAwesomeIcons.plane,
-  3: FontAwesomeIcons.calendar,
-  8: FontAwesomeIcons.city,
-  4: FontAwesomeIcons.mapLocation,
-};
+class _Info {
+  String profilePic = '';
+  String name = '';
+}
 
 class OffersPage extends StatefulWidget {
   final LoginData login;
@@ -30,6 +26,7 @@ class OffersPage extends StatefulWidget {
 }
 
 class _OffersPageState extends State<OffersPage> {
+  final _info = _Info();
   final df = DateFormat('d MMM, yyyy hh:mm a');
   bool _busy = true;
   final Map<int, Job> _bookings = {};
@@ -39,7 +36,11 @@ class _OffersPageState extends State<OffersPage> {
   @override
   void initState() {
     super.initState();
-    _getJobOffers();
+    Future.wait([_getJobOffers(), _getInfo()]).then(
+      (value) => setState(() {
+        _busy = false;
+      }),
+    );
     _socket = sio.io(
       'http://103.18.244.31:3000',
       sio.OptionBuilder().setTransports(['websocket']).enableForceNew().build(),
@@ -106,6 +107,22 @@ class _OffersPageState extends State<OffersPage> {
     }
   }
 
+  Future<void> _getInfo() async {
+    final path = widget.login.type == 'host' ? '/host' : '/driver';
+    final response = await Api.json.get(path, {
+      'Authorization': 'Bearer ${widget.authToken}',
+    });
+    if (response['success']) {
+      final info = response['info'];
+      setState(() {
+        _info.profilePic = info['profile_pic'] ?? '';
+        _info.name = info['name'];
+      });
+    } else {
+      Fluttertoast.showToast(msg: '[Error]: ${response["message"]}');
+    }
+  }
+
   void _acceptJob(final Job booking) async {
     setState(() => _busy = true);
     try {
@@ -158,334 +175,68 @@ class _OffersPageState extends State<OffersPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (_busy) return const Center(child: CircularProgressIndicator());
-    if (_bookings.isEmpty) {
-      return Center(
-        child: Text(
-          'No job offers!',
-          style: CustomStyle.defaultStyle,
-        ),
-      );
-    }
-    final parentJobs = _bookings.values
-        .where((job) => job.typeId != 3 && (job.subJob ?? 0) == 0)
-        .toList(growable: false);
-    final keys = _dailyUse.keys.toList();
     return Padding(
       padding: const EdgeInsets.all(10),
-      child: ListView.builder(
-        itemCount: parentJobs.length + _dailyUse.length,
-        itemBuilder: (ctx, idx) {
-          final parentJob = idx >= _dailyUse.length
-              ? parentJobs[idx - _dailyUse.length]
-              : _dailyUse[keys[idx]]!.first;
-          List<Job>? subjobs;
-          List<Job>? jobs;
-          final String path;
-          final double totalprice;
-          if (parentJob.typeId == 3) {
-            totalprice = _dailyUse[parentJob.quotationId]!
-                .fold(0, (a, b) => a + b.price);
-            path = 'Not implemented!';
-          } else {
-            subjobs = _bookings.values
-                .where((job) => parentJob.typeId == 3
-                    ? (job != parentJob &&
-                        job.quotationId == parentJob.quotationId)
-                    : job.subJob == parentJob.itemId)
-                .toList(growable: false);
-            totalprice = parentJob.price +
-                subjobs.fold<double>(0, (s, job) => s + job.price);
-            jobs = [
-              // parentJob,
-              ...subjobs,
-              // if (parentJob.placeTo != null) parentJob.placeTo,
-            ];
-            path = [
-              parentJob.placeFrom,
-              ...subjobs.map((job) => '${job.request.substring(0, 8)}...'),
-              if (parentJob.placeTo != null) parentJob.placeTo,
-            ].join(' \u27a1 ');
-          }
-          final price = totalprice.toStringAsFixed(2);
-          final paths = [
-            parentJob.placeFrom,
-            if (subjobs != null) ...subjobs.map((j) => j.request),
-            parentJob.placeTo,
-          ];
-          final isJobPending = parentJob.orderStatus.toLowerCase() == 'p';
-          final darkColor = isJobPending
-              ? CustomColor.secondaryColor
-              : CustomColor.jobAcceptedColor;
-          return Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 5,
-              horizontal: 10,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: darkColor,
-                border: Border.all(style: BorderStyle.none),
-                boxShadow: [
-                  BoxShadow(
-                    color: darkColor.withOpacity(0.7),
-                    blurRadius: 2,
-                    offset: const Offset(3, 3),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 2,
                   ),
-                ],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(10),
                 ),
-              ),
-              child: Padding(
-                padding: EdgeInsets.zero,
-                child: ExpansionTile(
-                  controlAffinity: ListTileControlAffinity.trailing,
-                  collapsedIconColor: CustomColor.accentColor,
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: EdgeInsets.zero,
-                  expandedAlignment: Alignment.centerLeft,
-                  shape: Border.all(style: BorderStyle.none),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: 50,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            if (![5, 6, 7].contains(parentJob.typeId))
-                              Icon(
-                                serviceIcons[parentJob.typeId],
-                                color: CustomColor.accentColor,
-                              ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: '${parentJob.orderType}\t',
-                                  style: CustomStyle.defaultStyle.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: CustomColor.accentColor,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: '(${parentJob.itemId})',
-                                  style: CustomStyle.defaultStyle.copyWith(
-                                    color: CustomColor.accentColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          if (parentJob.typeId != 3) const SizedBox(height: 5),
-                          if (parentJob.typeId != 3)
-                            Text(
-                              path,
-                              style: CustomStyle.textStyle
-                                  .copyWith(color: CustomColor.accentColor),
-                            ),
-                          const SizedBox(height: 5),
-                          Text(
-                            df.format(parentJob.dateFrom.toLocal()),
-                            style: CustomStyle.textStyle
-                                .copyWith(color: CustomColor.accentColor),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                  children: [
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: CustomColor.accentColor,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(10),
-                          bottomRight: Radius.circular(10),
-                        ),
-                        border: Border.all(style: BorderStyle.none),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              'Customer: ${parentJob.customerName}',
-                              style: CustomStyle.textStyle,
-                            ),
-                            if (subjobs != null &&
-                                subjobs.isNotEmpty &&
-                                jobs != null)
-                              const SizedBox(height: 5),
-                            if (subjobs != null &&
-                                subjobs.isNotEmpty &&
-                                jobs != null)
-                              RichText(
-                                text: TextSpan(
-                                  children:
-                                      List.generate(paths.length * 2 - 1, (i) {
-                                    return TextSpan(
-                                      text: i % 2 == 0
-                                          ? paths[i ~/ 2]
-                                          : ' \u27a1 ',
-                                      style: CustomStyle.textStyle.copyWith(
-                                        color: i % 2 == 1 ||
-                                                i % 2 == 0 &&
-                                                    i ~/ 2 >= jobs!.length ||
-                                                (jobs![i ~/ 2].typeId > 7 ||
-                                                    jobs[i ~/ 2].typeId < 5)
-                                            ? CustomColor.primaryColor
-                                            : CustomColor.greyColor,
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-                            if (parentJob.typeId == 3)
-                              const SizedBox(height: 5),
-                            if (parentJob.typeId == 3)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // parentJob,
-                                  ..._dailyUse[parentJob.quotationId]!,
-                                ]
-                                    .mapIndexed(
-                                      (i, job) => Text(
-                                        '${i + 1}) ${job.placeFrom} \u27a1 ${job.placeTo}',
-                                        style: CustomStyle.textStyle,
-                                      ),
-                                    )
-                                    .toList(growable: false),
-                              ),
-                            if (parentJob.typeId == 1 &&
-                                parentJob.flightNumber != null)
-                              const SizedBox(height: 5),
-                            if (parentJob.typeId == 1 &&
-                                parentJob.flightNumber != null)
-                              Text(
-                                'Flight number: ${parentJob.flightNumber}',
-                                style: CustomStyle.textStyle,
-                              ),
-                            if (parentJob.typeId == 1)
-                              const SizedBox(height: 5),
-                            if (parentJob.typeId == 1)
-                              Text(
-                                'ETD: ${parentJob.etd == null ? '' : df.format(parentJob.etd!.toLocal())}',
-                                style: CustomStyle.textStyle,
-                              ),
-                            if (parentJob.typeId == 1)
-                              const SizedBox(height: 5),
-                            if (parentJob.typeId == 1)
-                              Text(
-                                'ETA: ${parentJob.eta == null ? '' : df.format(parentJob.eta!.toLocal())}',
-                                style: CustomStyle.textStyle,
-                              ),
-                            const SizedBox(height: 5),
-                            Text(
-                              'Job Value: RM$price',
-                              style: CustomStyle.textStyle,
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                isJobPending
-                                    ? IconButton(
-                                        style: Theme.of(context)
-                                            .elevatedButtonTheme
-                                            .style!
-                                            .copyWith(
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.transparent),
-                                            ),
-                                        onPressed: _busy
-                                            ? null
-                                            : () {
-                                                _acceptJob(parentJob);
-                                              },
-                                        icon: const Icon(
-                                          FontAwesomeIcons.check,
-                                          color: Colors.green,
-                                          size: 20,
-                                        ),
-                                      )
-                                    : IconButton(
-                                        style: Theme.of(context)
-                                            .elevatedButtonTheme
-                                            .style!
-                                            .copyWith(
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.transparent),
-                                            ),
-                                        onPressed: _busy
-                                            ? null
-                                            : () {
-                                                _cancelJob(parentJob);
-                                              },
-                                        icon: const Icon(
-                                          FontAwesomeIcons.xmark,
-                                          color: Colors.red,
-                                          size: 20,
-                                        ),
-                                      ),
-                                if (parentJob.note != null)
-                                  IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: Text(
-                                            'Trip Information',
-                                            style: GoogleFonts.roboto(
-                                              fontSize: 26,
-                                            ),
-                                          ),
-                                          content: SizedBox(
-                                            height: 200,
-                                            child: SingleChildScrollView(
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    parentJob.note!,
-                                                    style:
-                                                        CustomStyle.textStyle,
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      FontAwesomeIcons.circleInfo,
-                                      color: Colors.grey,
-                                      size: 20,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
+                child: ClipOval(
+                  child: SizedBox.square(
+                    dimension: 48,
+                    child: Image.network(
+                      Api.link('/${_info.profilePic}'),
+                      fit: BoxFit.fill,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 100,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
+              const SizedBox(width: 10),
+              Text(
+                'Hi, ${_info.name.toUpperCase()}!',
+                style: GoogleFonts.roboto(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  MemoViewer(authToken: widget.authToken),
+                  const SizedBox(height: 10),
+                  JobOffersWidget(
+                    bookings: _bookings,
+                    dailyUsed: _dailyUse,
+                    onAccept: _acceptJob,
+                    onCancel: _cancelJob,
+                    busy: _busy,
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

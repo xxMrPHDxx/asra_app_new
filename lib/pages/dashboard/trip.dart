@@ -6,10 +6,12 @@ import 'package:asra_app_new/pages/activities.dart';
 import 'package:asra_app_new/pages/tracking.dart';
 import 'package:asra_app_new/pages/user_auth.dart';
 import 'package:asra_app_new/utils/colors.dart';
+import 'package:asra_app_new/utils/custom_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:asra_app_new/models/job.dart';
 import 'package:asra_app_new/pages/home.dart';
@@ -70,6 +72,7 @@ class _TripsPageState extends State<TripsPage> {
             toLat: double.tryParse(job['lat_to'] ?? '') ?? 0,
             toLon: double.tryParse(job['lon_to'] ?? '') ?? 0,
             request: job['request'] ?? '-',
+            note: job['note'] ?? '-',
           ));
         }
         _loading = false;
@@ -179,6 +182,11 @@ class _TripsPageState extends State<TripsPage> {
                             path,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
+                          const SizedBox(height: 5),
+                          Text(
+                            df.format(parentJob.dateFrom.toLocal()),
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
                           if (parentJob.flightNumber != null)
                             const SizedBox(height: 5),
                           if (parentJob.flightNumber != null)
@@ -251,6 +259,41 @@ class _TripsPageState extends State<TripsPage> {
                                   child: const Icon(Icons.map),
                                 ),
                               ),
+                              const SizedBox(width: 10),
+                              if (parentJob.note != null)
+                                IconButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text(
+                                          'Trip Information',
+                                          style: GoogleFonts.roboto(
+                                            fontSize: 26,
+                                          ),
+                                        ),
+                                        content: SizedBox(
+                                          height: 200,
+                                          child: SingleChildScrollView(
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  parentJob.note!,
+                                                  style: CustomStyle.textStyle,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    FontAwesomeIcons.circleInfo,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
+                                ),
                             ],
                           ),
                         ],

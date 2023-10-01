@@ -363,8 +363,6 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                 ],
               ),
-            const SizedBox(height: 10),
-            MemoViewer(authToken: widget.authToken),
           ],
         ),
       ),

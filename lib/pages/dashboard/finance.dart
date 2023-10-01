@@ -14,10 +14,15 @@ class FinancePage extends StatefulWidget {
 
 class _Payment {
   final String quotationId;
-  final DateTime datePaid;
-  final double amountPaid;
-  final String paymentCode;
-  _Payment(this.quotationId, this.datePaid, this.amountPaid, this.paymentCode);
+  final int totalPayment;
+  final int totalPaymentPaid;
+  final String driverPaymentStatus;
+  _Payment(
+    this.quotationId,
+    this.totalPayment,
+    this.totalPaymentPaid,
+    this.driverPaymentStatus,
+  );
 }
 
 class FinancePageState extends State<FinancePage> {
@@ -43,16 +48,16 @@ class FinancePageState extends State<FinancePage> {
       setState(() {
         for (final payment in response['payments']) {
           final quotationId = payment['quotation_id'];
-          final amountPaid = payment['amount_paid'].toDouble();
+          final amountPaid = payment['total_payment_paid'];
           if (!_payments.containsKey(quotationId)) {
             _payments[quotationId] = [];
           }
           _payments[quotationId]!.add(
             _Payment(
               quotationId,
-              DateTime.parse(payment['date_paid']),
+              int.tryParse(payment['total_payment']) ?? 0,
               amountPaid,
-              payment['payment_code'],
+              payment['driver_payment_status'],
             ),
           );
           _totalPayments[quotationId] = double.parse(payment['total_payment']);
@@ -66,47 +71,49 @@ class FinancePageState extends State<FinancePage> {
   Iterable<TableRow> _generate() sync* {
     int idx = 1;
     for (final key in _payments.keys) {
-      yield TableRow(
-        children: [
-          Text('${idx++}'),
-          Text(
-            key,
-            style: Theme.of(context).textTheme.bodyText2,
-          ),
-          Text(
-            'Aug 12, 2030',
-            style: Theme.of(context).textTheme.bodyText2,
-          ),
-          Text(
-            _totalPayments[key]!.toStringAsFixed(2),
-            textAlign: TextAlign.end,
-            style: Theme.of(context).textTheme.bodyText2,
-          ),
-          const Text(''),
-        ]
-            .map((e) => Padding(padding: const EdgeInsets.all(2), child: e))
-            .toList(),
-      );
+      // yield TableRow(
+      //   children: [
+      //     Text('${idx++}'),
+      //     Text(
+      //       key,
+      //       style: Theme.of(context).textTheme.bodyMedium,
+      //     ),
+      //     Text(
+      //       'Aug 12, 2030',
+      //       style: Theme.of(context).textTheme.bodyMedium,
+      //     ),
+      //     Text(
+      //       _totalPayments[key]!.toStringAsFixed(2),
+      //       textAlign: TextAlign.end,
+      //       style: Theme.of(context).textTheme.bodyMedium,
+      //     ),
+      //     const Text(''),
+      //   ]
+      //       .map((e) => Padding(padding: const EdgeInsets.all(2), child: e))
+      //       .toList(),
+      // );
       for (final payment in _payments[key]!) {
         yield TableRow(
           children: [
             Text(
               '${idx++}',
-              style: Theme.of(context).textTheme.bodyText2,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
             Text(
-              payment.paymentCode,
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
-            Text(
-              df.format(payment.datePaid),
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
-            const Text(''),
-            Text(
-              payment.amountPaid.toStringAsFixed(2),
+              payment.totalPayment.toStringAsFixed(2),
               textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.bodyText2,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Text(
+              payment.totalPaymentPaid.toStringAsFixed(2),
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            Text(
+              payment.driverPaymentStatus == 'Y' ? 'Paid' : 'Pending',
+              textAlign: TextAlign.end,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
           ]
               .map((e) => Padding(padding: const EdgeInsets.all(2), child: e))
@@ -121,16 +128,9 @@ class FinancePageState extends State<FinancePage> {
     if (_loading) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_totalPayments.isEmpty) {
-      return Center(
-        child: Text(
-          'No item!',
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-      );
-    }
-    final totalPayment =
-        _totalPayments.values.reduce((value, element) => value + element);
+    final totalPayment = _totalPayments.isEmpty
+        ? 0
+        : _totalPayments.values.reduce((value, element) => value + element);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.max,
@@ -144,16 +144,16 @@ class FinancePageState extends State<FinancePage> {
               children: [
                 Text(
                   'Payment Statement',
-                  style: Theme.of(context).textTheme.headline4,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 10),
                 Table(
                   border: TableBorder.all(color: Colors.grey),
                   columnWidths: const {
                     0: FixedColumnWidth(30),
-                    2: FixedColumnWidth(70),
-                    3: FixedColumnWidth(50),
-                    4: FixedColumnWidth(50),
+                    // 2: FixedColumnWidth(70),
+                    // 3: FixedColumnWidth(50),
+                    // 4: FixedColumnWidth(50),
                   },
                   children: [
                     TableRow(
@@ -165,39 +165,31 @@ class FinancePageState extends State<FinancePage> {
                           '#',
                           textAlign: TextAlign.center,
                           style:
-                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                         ),
                         Text(
-                          'Item ID',
+                          'Total Payment',
                           textAlign: TextAlign.center,
                           style:
-                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                         ),
                         Text(
-                          'Date',
+                          'Total Paid',
                           textAlign: TextAlign.center,
                           style:
-                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                         ),
                         Text(
-                          'Total',
+                          'Payment Status',
                           textAlign: TextAlign.center,
                           style:
-                              Theme.of(context).textTheme.bodyText2!.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                        Text(
-                          'Paid',
-                          textAlign: TextAlign.center,
-                          style:
-                              Theme.of(context).textTheme.bodyText2!.copyWith(
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
                         ),
@@ -216,13 +208,29 @@ class FinancePageState extends State<FinancePage> {
           shadowColor: Colors.grey,
           child: Padding(
             padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text('Total: RM${totalPayment.toStringAsFixed(2)}'),
-                Text('Total paid: RM${_totalPaid.toStringAsFixed(2)}'),
-                Text(
-                  'Balance: RM${(totalPayment - _totalPaid).toStringAsFixed(2)}',
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Total payment'),
+                    Text('Total paid'),
+                    Text(
+                      'Total payment pending',
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(': RM${totalPayment.toStringAsFixed(2)}'),
+                      Text(': RM${_totalPaid.toStringAsFixed(2)}'),
+                      Text(
+                          ': RM${(totalPayment - _totalPaid).toStringAsFixed(2)}'),
+                    ],
+                  ),
                 ),
               ],
             ),

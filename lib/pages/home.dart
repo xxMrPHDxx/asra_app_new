@@ -17,8 +17,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum HomepageMenuState {
-  offers(Icons.grid_view_rounded, 'Offers'),
-  trip(Icons.list, 'Trips'),
+  offers(Icons.grid_view_rounded, 'Job Offers'),
+  trip(Icons.list, 'Active Trips'),
   finance(Icons.monetization_on, 'Finance'),
   report(Icons.library_books, 'Report'),
   account(Icons.person, 'Account');

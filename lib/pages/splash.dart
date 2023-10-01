@@ -47,24 +47,19 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return TopImageEtchedWidget(
-      top: AnimatedRotation(
-        turns: _turns,
-        duration: const Duration(milliseconds: 30),
-        child: Image.asset(
-          'assets/markers/car.png',
-        ),
-      ),
+      top: null,
       child: Column(
         children: [
           Image.asset(
-            'assets/logo-sm.png',
-            width: 120, //MediaQuery.of(context).size.width,
+            'assets/splash_logo.png',
+            width: 120,
           ),
+          const SizedBox(height: Dimensions.heightSize * 2),
           Padding(
             padding: const EdgeInsets.symmetric(
                 horizontal: Dimensions.marginSize * 2),
             child: Text(
-              S.of(context).perfectTaxiBooking,
+              S.of(context).asraUnifiedPlatform,
               style: GoogleFonts.roboto(
                 fontSize: Dimensions.largeTextSize,
                 color: CustomColor.accentColor,

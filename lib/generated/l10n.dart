@@ -50,6 +50,16 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
+  /// `ASRA Unified Platform`
+  String get asraUnifiedPlatform {
+    return Intl.message(
+      'ASRA Unified Platform',
+      name: 'asraUnifiedPlatform',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Email`
   String get email {
     return Intl.message(
