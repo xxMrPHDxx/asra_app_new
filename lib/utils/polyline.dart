@@ -1,50 +1,28 @@
-import 'dart:convert';
-
+import 'package:asra_app_new/api.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart' as http;
 
 Future<List<LatLng>> getRoutesBetweenPoints(
+  String token,
   LatLng start,
-  LatLng end, [
+  LatLng finish, [
   List<LatLng> waypoints = const [],
 ]) async {
   final List<LatLng> vertices = [];
-  final request = {
-    "origin": {
-      "location": {
-        "latLng": {"latitude": start.latitude, "longitude": start.longitude}
-      }
+  final Map<String, dynamic> request = {
+    "start": {
+      "latitude": start.latitude,
+      "longitude": start.longitude,
     },
-    "destination": {
-      "location": {
-        "latLng": {"latitude": end.latitude, "longitude": end.longitude}
-      }
+    "finish": {
+      "latitude": finish.latitude,
+      "longitude": finish.longitude,
     },
-    "travelMode": "DRIVE",
-    "polylineEncoding": "GEO_JSON_LINESTRING"
   };
-  if (waypoints.isNotEmpty) {
-    request['intermediates'] = waypoints.map(
-      (point) => {
-        "location": {
-          "latLng": {
-            "latitude": point.latitude,
-            "longitude": point.longitude,
-          }
-        }
-      },
-    );
-  }
-  final res = await http.post(
-    Uri.parse('https://routes.googleapis.com/directions/v2:computeRoutes'),
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Goog-Api-Key': 'AIzaSyABRE0-D5OnLtJNsA0XHv7rA3eu-tyEs28',
-      'X-Goog-FieldMask': 'routes.legs.polyline',
-    },
-    body: jsonEncode(request),
-  );
-  final Map<String, dynamic> obj = jsonDecode(res.body);
+  if (waypoints.isNotEmpty) request['waypoints'] = waypoints;
+  final obj = await Api.json.post('/route', request, {
+    'Authorization': 'Bearer $token',
+  });
+  if (!obj['success']) throw Exception(obj['message']);
   if (!obj.containsKey('routes')) throw Exception('Failed to get route!');
   final List<dynamic> routes = obj['routes'];
   if (routes.isEmpty) {
@@ -86,7 +64,7 @@ List<LatLng> decodeEncodedPolyline(String encoded) {
     } while (b >= 0x20);
     int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
     lng += dlng;
-    LatLng p = new LatLng((lat / 1E5).toDouble(), (lng / 1E5).toDouble());
+    LatLng p = LatLng((lat / 1E5).toDouble(), (lng / 1E5).toDouble());
     poly.add(p);
   }
   return poly;

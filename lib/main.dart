@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:asra_app_new/api.dart';
@@ -15,6 +16,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:socket_io_client/socket_io_client.dart' as sio;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:callkeep/callkeep.dart';
+import 'package:uuid/uuid.dart';
 
 const notificationId = 'ASRA_NotificationChannel';
 const notificationTitle = 'ASRA Travel';
@@ -89,6 +92,81 @@ void onStart(ServiceInstance service) async {
   BackgroundLocation.startLocationService();
 }
 
+final _callKeep = FlutterCallkeep();
+bool _callKeepInited = false;
+Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+  print('backgroundMessage: message => ${message.toString()}');
+  var payload = message['data'];
+  var callerId = payload['caller_id'] as String;
+  var callerName = payload['caller_name'] as String;
+  var uuid = payload['uuid'] as String;
+  var hasVideo = payload['has_video'] == "true";
+
+  final callUUID = uuid;
+  _callKeep.on(CallKeepPerformAnswerCallAction(),
+      (CallKeepPerformAnswerCallAction event) {
+    print(
+        'backgroundMessage: CallKeepPerformAnswerCallAction ${event.callUUID}');
+    Timer(const Duration(seconds: 1), () {
+      print(
+          '[setCurrentCallActive] $callUUID, callerId: $callerId, callerName: $callerName');
+      _callKeep.setCurrentCallActive(callUUID);
+    });
+    //_callKeep.endCall(event.callUUID);
+  });
+
+  _callKeep.on(CallKeepPerformEndCallAction(),
+      (CallKeepPerformEndCallAction event) {
+    print('backgroundMessage: CallKeepPerformEndCallAction ${event.callUUID}');
+  });
+  if (!_callKeepInited) {
+    _callKeep.setup(
+        null,
+        <String, dynamic>{
+          'ios': {
+            'appName': 'CallKeepDemo',
+          },
+          'android': {
+            'alertTitle': 'Permissions required',
+            'alertDescription':
+                'This application needs to access your phone accounts',
+            'cancelButton': 'Cancel',
+            'okButton': 'ok',
+            'foregroundService': {
+              'channelId': 'com.company.my',
+              'channelName': 'Foreground service for my app',
+              'notificationTitle': 'My app is running on background',
+              'notificationIcon':
+                  'Path to the resource icon of the notification',
+            },
+          },
+        },
+        backgroundMode: true);
+    _callKeepInited = true;
+  }
+
+  print('backgroundMessage: displayIncomingCall ($callerId)');
+  _callKeep.displayIncomingCall(callUUID, callerId,
+      localizedCallerName: callerName, hasVideo: hasVideo);
+  _callKeep.backToForeground();
+  /*
+
+  if (message.containsKey('data')) {
+    // Handle data message
+    final dynamic data = message['data'];
+  }
+
+  if (message.containsKey('notification')) {
+    // Handle notification message
+    final dynamic notification = message['notification'];
+    print('notification => ${notification.toString()}');
+  }
+
+  // Or do other work.
+  */
+  return true as dynamic;
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   DartPluginRegistrant.ensureInitialized();
@@ -116,6 +194,7 @@ void main() async {
   await service.startService();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   // await initializeDateFormatting('en', 'assets/');
+
   runApp(const MyApp());
 }
 
@@ -154,22 +233,22 @@ class MyApp extends StatelessWidget {
           ),
         ),
         textTheme: const TextTheme(
-          button: TextStyle(color: Colors.black),
-          subtitle2: TextStyle(color: Colors.blueAccent),
-          headline4: TextStyle(fontSize: 22),
-          headline5: TextStyle(
+          labelLarge: TextStyle(color: Colors.black),
+          titleSmall: TextStyle(color: Colors.blueAccent),
+          headlineMedium: TextStyle(fontSize: 22),
+          headlineSmall: TextStyle(
             fontSize: 18,
             color: Colors.black,
           ),
-          headline6: TextStyle(
+          titleLarge: TextStyle(
             fontSize: 16,
             color: Colors.black,
           ),
-          bodyText1: TextStyle(
+          bodyLarge: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.normal,
           ),
-          bodyText2: TextStyle(
+          bodyMedium: TextStyle(
             fontSize: 11,
           ),
         ),

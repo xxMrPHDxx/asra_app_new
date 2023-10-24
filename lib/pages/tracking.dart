@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/error.dart';
 import 'package:asra_app_new/models/job.dart';
 import 'package:asra_app_new/utils/polyline.dart';
@@ -10,9 +11,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class TrackingPage extends StatefulWidget {
+  final String authToken;
   final Job job;
   final List<Job> subJobs;
   const TrackingPage({
+    required this.authToken,
     required this.job,
     required this.subJobs,
     Key? key,
@@ -51,6 +54,7 @@ class _TrackingPageState extends State<TrackingPage> {
         .addAll(widget.subJobs.map((job) => LatLng(job.toLat, job.toLon)));
     _waypoints.add(finish);
     final coords = await getRoutesBetweenPoints(
+      widget.authToken,
       start,
       finish,
     );
@@ -135,6 +139,7 @@ class _TrackingPageState extends State<TrackingPage> {
 
         // Calculating routes
         final coords = await getRoutesBetweenPoints(
+          widget.authToken,
           _position,
           pos,
           _waypoints.sublist(1, _waypoints.length - 1),
@@ -155,6 +160,21 @@ class _TrackingPageState extends State<TrackingPage> {
     setState(() {
       _loading = false;
     });
+  }
+
+  Future<String> _getEmergencyNumber(String token) async {
+    try {
+      final res = await Api.json.get(
+        '/driver',
+        {'Authorization': 'Bearer $token'},
+      );
+      if (!res['success']) throw Exception(res['message']);
+      final info = res['info'];
+      return info['emergency_number'];
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Error: $e');
+      return '';
+    }
   }
 
   @override
@@ -219,6 +239,39 @@ class _TrackingPageState extends State<TrackingPage> {
                   },
                 )
               },
+      ),
+      floatingActionButton: SizedBox.square(
+        dimension: 64,
+        child: Padding(
+          padding: const EdgeInsets.all(5),
+          child: ClipOval(
+            child: TextButton(
+              style: const ButtonStyle(
+                backgroundColor: MaterialStatePropertyAll(Colors.yellow),
+              ),
+              onPressed: () async {
+                // final permissionsGranted =
+                //     await Telephony.instance.requestPhonePermissions;
+                // final emergencyNumber =
+                //     await _getEmergencyNumber(widget.authToken);
+                // if (!RegExp(r'^01\d{8,9}$').hasMatch(emergencyNumber)) {
+                //   Fluttertoast.showToast(msg: 'Invalid phone number!');
+                //   return;
+                // }
+                // if (permissionsGranted ?? false) {
+                //   Telephony.instance.dialPhoneNumber(emergencyNumber);
+                // } else {
+                //   Fluttertoast.showToast(msg: 'Call permission denied!');
+                // }
+                // launchUrlString('tel://$emergencyNumber');
+              },
+              child: const Icon(
+                Icons.phone,
+                color: Colors.red,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

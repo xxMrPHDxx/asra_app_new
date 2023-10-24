@@ -110,7 +110,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                               textAlign: TextAlign.start,
                               style: Theme.of(context)
                                   .textTheme
-                                  .headline5!
+                                  .headlineSmall!
                                   .copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -118,14 +118,14 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                             Text(
                               job.orderType,
                               textAlign: TextAlign.start,
-                              style: Theme.of(context).textTheme.headline5,
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
                             Text(
                               job.placeTo == null
                                   ? job.placeFrom
                                   : '${job.placeFrom} - ${job.placeTo}',
                               textAlign: TextAlign.start,
-                              style: Theme.of(context).textTheme.headline5,
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
                           ],
                         ),

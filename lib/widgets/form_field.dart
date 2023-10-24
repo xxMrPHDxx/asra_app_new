@@ -156,7 +156,7 @@ class CustomDropdownButton<T> extends StatelessWidget {
                   hint!,
                   style: Theme.of(context)
                       .textTheme
-                      .button!
+                      .labelLarge!
                       .copyWith(color: Colors.black),
                 ),
           underline: Container(),

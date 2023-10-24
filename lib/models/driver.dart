@@ -5,6 +5,7 @@ class Driver {
   String icDocument, drivingLicense, ehailingLicense, ehailingInsurance;
   String carInsurancePath, roadTaxPath, carGrant;
   String drivingLicenseExpiry, ehailingLicenseExpiry;
+  String emergencyNumber;
   Driver({
     this.id,
     this.profilePic = '',
@@ -23,5 +24,6 @@ class Driver {
     this.carGrant = '',
     this.drivingLicenseExpiry = '',
     this.ehailingLicenseExpiry = '',
+    this.emergencyNumber = '',
   });
 }

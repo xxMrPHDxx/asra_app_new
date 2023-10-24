@@ -10,11 +10,15 @@ import 'package:asra_app_new/pages/login.dart';
 import 'package:asra_app_new/utils/colors.dart';
 import 'package:asra_app_new/utils/custom_style.dart';
 import 'package:asra_app_new/utils/viewer.dart';
+import 'package:asra_app_new/widgets/add_blocking.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+import 'package:telephony/telephony.dart';
 
 enum HomepageMenuState {
   offers(Icons.grid_view_rounded, 'Job Offers'),
@@ -39,7 +43,11 @@ class LoginData {
   final int id;
   final int userId;
   final String type;
-  LoginData(this.id, this.userId, this.type);
+  LoginData(
+    this.id,
+    this.userId,
+    this.type,
+  );
 }
 
 LoginData getLoginData(final String token) {
@@ -91,6 +99,21 @@ class _HomePageState extends State<HomePage> {
     setState(() => _loading = false);
   }
 
+  Future<String> _getEmergencyNumber(String token) async {
+    try {
+      final res = await Api.json.get(
+        '/driver',
+        {'Authorization': 'Bearer $token'},
+      );
+      if (!res['success']) throw Exception(res['message']);
+      final info = res['info'];
+      return info['emergency_number'];
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Error: $e');
+      return '';
+    }
+  }
+
   Widget _renderPage() {
     switch (_currentPage) {
       case 0:
@@ -123,42 +146,37 @@ class _HomePageState extends State<HomePage> {
             color: CustomColor.accentColor,
           ),
           onPressed: () {
-            // showDialog(
-            //   context: context,
-            //   builder: (ctx) => HolidayWidget(
-            //     onClick: (startDate, endDate) async {
-            //       try {
-            //         final response = await Api.json.post(
-            //           '/driver/block',
-            //           {
-            //             'startDate': startDate,
-            //             'endDate': endDate,
-            //           },
-            //           {
-            //             'Authorization': 'Bearer $_token',
-            //           },
-            //         );
-            //         if (!response['success']) {
-            //           throw Exception(response['message']);
-            //         }
-            //         if (mounted) Navigator.of(context).pop();
-            //       } catch (e) {
-            //         if (e is Exception) {
-            //           Fluttertoast.showToast(msg: 'Error: ${e.toString()}');
-            //         }
-            //       }
-            //     },
-            //   ),
-            // );
+            showDialog(
+              context: context,
+              builder: (ctx) => AddBlockingWidget(
+                onClick: (startDate, endDate) async {
+                  try {
+                    final response = await Api.json.post(
+                      '/driver/block',
+                      {
+                        'startDate': startDate,
+                        'endDate': endDate,
+                      },
+                      {
+                        'Authorization': 'Bearer $_token',
+                      },
+                    );
+                    if (!response['success']) {
+                      throw Exception(response['message']);
+                    }
+                    if (mounted) Navigator.of(context).pop();
+                  } catch (e) {
+                    if (e is Exception) {
+                      Fluttertoast.showToast(msg: 'Error: ${e.toString()}');
+                    }
+                  }
+                },
+              ),
+            );
           },
         );
       case HomepageMenuState.account:
         return ExpandableFab(
-          overlayStyle: ExpandableFabOverlayStyle(blur: 0.7),
-          foregroundColor: CustomColor.accentColor,
-          closeButtonStyle: const ExpandableFabCloseButtonStyle(
-            foregroundColor: CustomColor.accentColor,
-          ),
           children: [
             FloatingActionButton.small(
               heroTag: 'editProfile',
@@ -236,6 +254,44 @@ class _HomePageState extends State<HomePage> {
               backgroundColor: CustomColor.primaryColor,
               foregroundColor: CustomColor.accentColor,
               automaticallyImplyLeading: false,
+              actions: [
+                SizedBox.square(
+                  dimension: 64,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: ClipOval(
+                      child: TextButton(
+                        style: const ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.yellow),
+                        ),
+                        onPressed: () async {
+                          final granted =
+                              await Telephony.instance.requestPhonePermissions;
+                          if (!(granted ?? false)) {
+                            Fluttertoast.showToast(msg: 'Permission denied!');
+                            return;
+                          }
+                          final emergencyNumber =
+                              await _getEmergencyNumber(_token);
+                          if (!RegExp(r'^01\d{8,9}$')
+                              .hasMatch(emergencyNumber)) {
+                            Fluttertoast.showToast(
+                                msg: 'Invalid phone number!');
+                            return;
+                          }
+                          Telephony.instance.dialPhoneNumber(emergencyNumber);
+                          // launchUrlString('tel://$emergencyNumber');
+                        },
+                        child: const Icon(
+                          Icons.phone,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             body: _loading
                 ? const Center(child: CircularProgressIndicator())

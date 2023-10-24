@@ -101,7 +101,7 @@ class AddActivityWidget extends StatelessWidget {
                       Text(
                         'Add Status',
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.headline5,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       DropdownButtonFormField<int>(
                         decoration: const InputDecoration(
@@ -119,7 +119,7 @@ class AddActivityWidget extends StatelessWidget {
                                     type.name,
                                     style: Theme.of(context)
                                         .textTheme
-                                        .bodyText1!
+                                        .bodyLarge!
                                         .copyWith(
                                           fontSize: 12,
                                         ),
@@ -148,7 +148,7 @@ class AddActivityWidget extends StatelessWidget {
                           ),
                           hintText: 'Note',
                         ),
-                        style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                               fontSize: 12,
                             ),
                         controller: activityNote,

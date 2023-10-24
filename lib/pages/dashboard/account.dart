@@ -5,7 +5,6 @@ import 'package:asra_app_new/utils/colors.dart';
 import 'package:asra_app_new/widgets/editables.dart';
 import 'package:asra_app_new/widgets/form_field.dart';
 import 'package:asra_app_new/widgets/form_group.dart';
-import 'package:asra_app_new/widgets/memo.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -53,17 +52,21 @@ class _AccountPageState extends State<AccountPage> {
     if (response['success']) {
       final info = response['info'];
       setState(() {
-        _info.profilePic = info['profile_pic'] ?? '';
-        _info.name = info['name'];
-        _info.email = info['email'];
-        _info.address = info['address'];
-        _info.icDocument = info['ic_document'];
-        _info.drivingLicense = info['driving_license'];
-        _info.ehailingLicense = info['ehailing_license'];
-        _info.ehailingInsurance = info['ehailing_insurance'];
-        _info.carGrant = info['car_grant'];
-        _info.drivingLicenseExpiry = info['driving_license_expiry'] ?? '';
-        _info.ehailingLicenseExpiry = info['ehailing_license_expiry'] ?? '';
+        if (_info is Driver) {
+          final driver = _info as Driver;
+          driver.profilePic = info['profile_pic'] ?? '';
+          driver.name = info['name'];
+          driver.email = info['email'];
+          driver.address = info['address'];
+          driver.icDocument = info['ic_document'];
+          driver.drivingLicense = info['driving_license'];
+          driver.ehailingLicense = info['ehailing_license'];
+          driver.ehailingInsurance = info['ehailing_insurance'];
+          driver.carGrant = info['car_grant'];
+          driver.drivingLicenseExpiry = info['driving_license_expiry'] ?? '';
+          driver.ehailingLicenseExpiry = info['ehailing_license_expiry'] ?? '';
+          driver.emergencyNumber = info['emergency_number'] ?? '';
+        }
         _loading = false;
       });
     } else {
@@ -192,6 +195,21 @@ class _AccountPageState extends State<AccountPage> {
               child: CustomFormField(
                 enabled: false,
                 value: _info.email,
+              ),
+            ),
+            const SizedBox(height: 20),
+            FormGroup(
+              label: 'Emergency Contact',
+              child: EditableFormField(
+                enabled: !_loading,
+                value: _info.emergencyNumber,
+                onChanged: (val) async {
+                  await Api.json.patch('/driver', {
+                    'emergency_number': val,
+                  }, {
+                    'Authorization': 'Bearer ${widget.authToken}',
+                  });
+                },
               ),
             ),
             const SizedBox(height: 20),

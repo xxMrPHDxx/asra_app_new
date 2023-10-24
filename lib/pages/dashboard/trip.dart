@@ -251,6 +251,7 @@ class _TripsPageState extends State<TripsPage> {
                                     Navigator.of(context)
                                         .push(MaterialPageRoute(
                                       builder: (ctx) => TrackingPage(
+                                        authToken: widget.authToken,
                                         job: parentJob,
                                         subJobs: subjobs,
                                       ),

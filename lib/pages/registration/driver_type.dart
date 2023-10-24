@@ -35,7 +35,7 @@ class _DriverType extends StatelessWidget {
           const SizedBox(width: 10),
           Text(
             caption,
-            style: Theme.of(context).textTheme.headline5!.copyWith(
+            style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                   fontWeight: FontWeight.bold,
                   color: selected ? Colors.blue : Colors.black,
                 ),
