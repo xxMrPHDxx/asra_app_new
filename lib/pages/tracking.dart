@@ -5,10 +5,12 @@ import 'package:asra_app_new/api.dart';
 import 'package:asra_app_new/error.dart';
 import 'package:asra_app_new/models/job.dart';
 import 'package:asra_app_new/utils/polyline.dart';
+import 'package:callkeep/callkeep.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:uuid/uuid.dart';
 
 class TrackingPage extends StatefulWidget {
   final String authToken;
@@ -250,19 +252,37 @@ class _TrackingPageState extends State<TrackingPage> {
                 backgroundColor: MaterialStatePropertyAll(Colors.yellow),
               ),
               onPressed: () async {
-                // final permissionsGranted =
-                //     await Telephony.instance.requestPhonePermissions;
-                // final emergencyNumber =
-                //     await _getEmergencyNumber(widget.authToken);
-                // if (!RegExp(r'^01\d{8,9}$').hasMatch(emergencyNumber)) {
-                //   Fluttertoast.showToast(msg: 'Invalid phone number!');
-                //   return;
-                // }
-                // if (permissionsGranted ?? false) {
-                //   Telephony.instance.dialPhoneNumber(emergencyNumber);
-                // } else {
-                //   Fluttertoast.showToast(msg: 'Call permission denied!');
-                // }
+                final number = await _getEmergencyNumber(widget.authToken);
+                if (!RegExp(r'^01\d{8,9}$').hasMatch(number)) {
+                  Fluttertoast.showToast(msg: 'Invalid phone number!');
+                  return;
+                }
+                final callKeep = FlutterCallkeep();
+                final callSetup = <String, dynamic>{
+                  'ios': {
+                    'appName': 'CallKeepDemo',
+                  },
+                  'android': {
+                    'alertTitle': 'Permissions required',
+                    'alertDescription':
+                        'This application needs to access your phone accounts',
+                    'cancelButton': 'Deny',
+                    'okButton': 'Allow',
+                    // Required to get audio in background when using Android 11
+                    'foregroundService': {
+                      'channelId': 'asra.app.driver',
+                      'channelName': 'ASRA Driver Caller ID',
+                      'notificationTitle': 'You are currently on call',
+                      'notificationIcon': 'assets/logo-sm.png',
+                    },
+                  },
+                };
+                if (mounted) callKeep.setup(context, callSetup);
+                await callKeep.startCall(
+                  const Uuid().v4(),
+                  number,
+                  'Driver',
+                );
                 // launchUrlString('tel://$emergencyNumber');
               },
               child: const Icon(

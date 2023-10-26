@@ -18,7 +18,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:telephony/telephony.dart';
+import 'package:callkeep/callkeep.dart';
+import 'package:uuid/uuid.dart';
 
 enum HomepageMenuState {
   offers(Icons.grid_view_rounded, 'Job Offers'),
@@ -266,22 +267,40 @@ class _HomePageState extends State<HomePage> {
                               MaterialStatePropertyAll(Colors.yellow),
                         ),
                         onPressed: () async {
-                          final granted =
-                              await Telephony.instance.requestPhonePermissions;
-                          if (!(granted ?? false)) {
-                            Fluttertoast.showToast(msg: 'Permission denied!');
-                            return;
-                          }
-                          final emergencyNumber =
-                              await _getEmergencyNumber(_token);
-                          if (!RegExp(r'^01\d{8,9}$')
-                              .hasMatch(emergencyNumber)) {
+                          final number = await _getEmergencyNumber(_token);
+                          if (!RegExp(r'^01\d{8,9}$').hasMatch(number)) {
                             Fluttertoast.showToast(
                                 msg: 'Invalid phone number!');
                             return;
                           }
-                          Telephony.instance.dialPhoneNumber(emergencyNumber);
-                          // launchUrlString('tel://$emergencyNumber');
+                          final callKeep = FlutterCallkeep();
+                          final callSetup = <String, dynamic>{
+                            'ios': {
+                              'appName': 'CallKeepDemo',
+                            },
+                            'android': {
+                              'alertTitle': 'Permissions required',
+                              'alertDescription':
+                                  'This application needs to access your phone accounts',
+                              'cancelButton': 'Deny',
+                              'okButton': 'Allow',
+                              // Required to get audio in background when using Android 11
+                              'foregroundService': {
+                                'channelId': 'asra.app.driver',
+                                'channelName': 'ASRA Driver Caller ID',
+                                'notificationTitle':
+                                    'You are currently on call',
+                                'notificationIcon': 'assets/logo-sm.png',
+                              },
+                            },
+                          };
+                          if (mounted) callKeep.setup(context, callSetup);
+                          await callKeep.startCall(
+                            const Uuid().v4(),
+                            number,
+                            'Driver',
+                          );
+                          // launchUrlString('tel://$number');
                         },
                         child: const Icon(
                           Icons.phone,

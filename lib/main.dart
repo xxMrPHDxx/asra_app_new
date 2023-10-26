@@ -17,7 +17,6 @@ import 'package:socket_io_client/socket_io_client.dart' as sio;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:callkeep/callkeep.dart';
-import 'package:uuid/uuid.dart';
 
 const notificationId = 'ASRA_NotificationChannel';
 const notificationTitle = 'ASRA Travel';
